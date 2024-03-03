@@ -1,11 +1,7 @@
 import winston from 'winston';
 
 const logFormat = winston.format.printf(function (info) {
-  if (process.env.VERCEL_ENV !== 'production') {
-    return `${JSON.stringify(info)}`;
-  } else {
-    return `${JSON.stringify(info, null, 2)}\n`;
-  }
+  return `${JSON.stringify(info, null, 2)}\n`;
 });
 
 const format = winston.format.combine(
