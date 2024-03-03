@@ -17,7 +17,7 @@ export const AuthStore = new Store<AuthStore>({
 });
 
 const unsub = firebaseAuth.onAuthStateChanged(auth, (user) => {
-	log.info('On Auth State Change Triggered');
+	log.info("AUTHENTICATED USER:- ", user?.email ?? 'UNAUTHENTICATED');
 	AuthStore.update((store) => {
 		store.user = user;
 		store.isLoggedIn = user ? true : false;

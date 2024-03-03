@@ -1,0 +1,28 @@
+{
+  "name": "wealthcaret-server",
+  "version": "0.0.1",
+  "description": "server side code for the wealthcaret app",
+  "main": "index.js",
+  "scripts": {
+    "build": "rimraf ./build && tsc",
+    "start": "npm run build && node build/index.js",
+    "dev": "npx nodemon"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.18.3",
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2",
+    "winston": "^3.11.0",
+    "yahoo-finance2": "^2.9.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.24",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  }
+}

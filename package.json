@@ -7,7 +7,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "clean": "rm -rf node_modules package-lock.json yarn.lock"
   },
   "jest": {
     "preset": "jest-expo"
@@ -15,6 +16,7 @@
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
     "@react-native-async-storage/async-storage": "1.21.0",
+    "@react-native-picker/picker": "2.6.1",
     "@react-navigation/native": "^6.0.2",
     "expo": "~50.0.8",
     "expo-font": "~11.10.3",

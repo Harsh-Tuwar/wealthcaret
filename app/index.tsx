@@ -6,8 +6,8 @@ import { useRouter, useSegments } from 'expo-router';
 import { AuthStore } from '@/stores/authStore';
 
 const Index = () => {
-	const segments = useSegments();
 	const router = useRouter();
+	const segments = useSegments();
 	const navigationState = useRootNavigationState();
 
 	const { initialized, isLoggedIn } = AuthStore.useState();
@@ -19,17 +19,17 @@ const Index = () => {
 
 		const isAuthGroup = segments[0] === "(auth)";
 
+		console.log(isLoggedIn);
+
 		if (!isLoggedIn && !isAuthGroup) {
 			router.replace('/(auth)/login');
 		} else if (isLoggedIn) {
 			router.replace("/(app)/home");
 		}
-
 	}, [segments, navigationState?.key, initialized]);
 
-
 	return (
-		<View>
+		<View style={{ margin: 15 }}>
 			{!navigationState?.key ? <Text>Loading...</Text> : <></>}
 		</View>
 	);

@@ -1,0 +1,1 @@
+export const FIRESTORE_PORTFOLIO_COLLECTION = 'portfolios'
