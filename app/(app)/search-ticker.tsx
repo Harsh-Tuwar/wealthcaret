@@ -1,19 +1,37 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import yahooFinance from 'yahoo-finance2';
+
+import network from '../../utils/network';
+import { Link } from 'expo-router';
 
 const SearchTickers = () => {
 	const [searchValue, setSearchValue] = useState<string>('');
 	const [loading, setLoading] = useState(false);
-	const [searchResults, setSearchResults] = useState([]);
+	const [searchResults, setSearchResults] = useState<any[]>([]);
 
 	React.useEffect(() => {
+		if (searchValue.length === 0) {
+			setSearchResults([]);
+			return;
+		}
+
 		setLoading(true);
-		yahooFinance.search(searchValue).then((val) => {
-			console.log(val);
-		}).finally(() => setLoading(false));
+		
+		const timeout = setTimeout(async () => {
+			await fetchSeachResults();
+		}, 400);
+		
+		setLoading(false);
+
+		return () => clearTimeout(timeout);
 	}, [searchValue]);
+	
+	const fetchSeachResults = async () => {
+		const results = await network.get(`/picker/search?query=${searchValue}`) as SearchPickerResults;
+
+		setSearchResults(results.quotes.length ? results.quotes.filter((res) => res.isYahooFinance) : []);
+	};
 
 	return (
 		<SafeAreaView style={styles.container}>
@@ -27,7 +45,15 @@ const SearchTickers = () => {
 			/>
 
 			<View style={styles.searchResultsContainer}>
-				{loading ? <View style={styles.center}><Text>Loading...</Text></View> : <Text>asdsd</Text>}
+				{loading ? <View style={styles.center}><Text>Loading...</Text></View> : searchResults.length ? searchResults.map((res) => (
+					<View key={res.symbol} style={styles.resultItem}>
+						<Link push href={{ pathname: '/(hidden)/ticker/[symbol]', params: { symbol: res.symbol }}}>
+							<Text>
+								{res.symbol} - {res.shortname} ({res.exchange})
+							</Text>
+						</Link>
+					</View>
+				)) : <Text>No results found!</Text>}
 			</View>
 		</SafeAreaView>
 	);
@@ -43,6 +69,12 @@ const styles = StyleSheet.create({
 	},
 	searchResultsContainer: {
 		flex: 1,
+	},
+	resultItem: {
+		marginVertical: 5,
+		padding: 5,
+		borderWidth: 1,
+		borderRadius: 10,
 	},
 	input: {
 		marginVertical: 20,

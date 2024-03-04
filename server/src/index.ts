@@ -14,7 +14,9 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
 });
 
-app.get("/api/picker/search", PickerController.GetPickerData_ByQuery);
+app.get("/api/picker", PickerController.GetPickerSummary_ByQuery);
+app.get("/api/picker/search", PickerController.SearchPickers_ByQuery);
+app.get("/api/picker/chart", PickerController.GetPickerChartData_ByQuery);
 
 /* Start the Express app and listen
  for incoming requests on the specified port */

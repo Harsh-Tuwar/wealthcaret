@@ -5,3 +5,7 @@ type Portfolio = {
 	userId: string
 	createdAt: Date
 }
+
+type SearchPickerResults {
+	quotes: any[]
+}
