@@ -91,7 +91,7 @@ export const GetPickerChartData_ByQuery = async (req: Request, res: Response) =>
 		}
 
 		const chart = await yahooFinance.chart(searchQuery as string, {
-			period1: start ?? startPeriod,
+			period1: new Date(startPeriod),
 			period2: end ?? new Date(),
 			interval: interval ?? '15m'
 		});
@@ -104,6 +104,7 @@ export const GetPickerChartData_ByQuery = async (req: Request, res: Response) =>
 		logger.error(error);
 		return res.json({
 			chart: [],
+			message: error,
 			error: true
 		});
 	}
