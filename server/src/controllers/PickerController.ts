@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
 import yahooFinance from 'yahoo-finance2';
+import { Request, Response } from 'express';
+
 import { logger } from '../utils/logger';
 
 export const SearchPickers_ByQuery = async (req: Request, res: Response) => {
@@ -35,7 +36,7 @@ export const SearchPickers_ByQuery = async (req: Request, res: Response) => {
 };
 
 
-export const GetPickerSummary_ByQuery = async (req: Request, res: Response) => {
+export const GetPickerData_ByQuery = async (req: Request, res: Response) => {
 	try {
 		const { query: searchQuery } = req.query;
 
@@ -70,7 +71,7 @@ export const GetPickerChartData_ByQuery = async (req: Request, res: Response) =>
 	try {
 		const { query: searchQuery, interval, start, end } = req.query as GetChartPickerDataQuery;
 
-		logger.info(`Received a search query: ${searchQuery}`);
+		logger.info(`Received a chart query: ${searchQuery}`);
 
 		if (!searchQuery) {
 			logger.info(`No search query provided, returning none!`);
@@ -93,13 +94,22 @@ export const GetPickerChartData_ByQuery = async (req: Request, res: Response) =>
 		const chart = await yahooFinance.chart(searchQuery as string, {
 			period1: new Date(startPeriod),
 			period2: end ?? new Date(),
-			interval: interval ?? '15m'
+			interval: interval ?? '15m',
 		});
+
+		let ptData: { value: number, date: Date }[] = [];
+
+		if (chart) {
+			ptData = chart.quotes.map((q) => ({
+				date: q.date,
+				value: q.close
+			}));
+		}
 
 		return res.json({
 			error: false,
-			chart,
-		})
+			data: ptData,
+		});
 	} catch (error) {
 		logger.error(error);
 		return res.json({
