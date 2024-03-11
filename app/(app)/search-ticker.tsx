@@ -3,9 +3,10 @@ import { View, Text, StyleSheet, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import network from '../../utils/network';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 
 const SearchTickers = () => {
+	const router = useRouter();
 	const [searchValue, setSearchValue] = useState<string>('');
 	const [loading, setLoading] = useState(false);
 	const [searchResults, setSearchResults] = useState<any[]>([]);

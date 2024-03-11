@@ -5,6 +5,8 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import * as CollectionStrings from '../constants/Firebase';
 import { log } from '../utils/logger';
 import { FIREBASE_DB, auth } from '../firebase';
+import { createNewPortfolio } from './portfolioStore';
+import { PortfolioType } from '@/constants/types';
 
 type FirestoreUser = {
 	name: string,
@@ -90,6 +92,7 @@ export const appSignUp = async (email: string, password: string, displayName: st
 				name: displayName,
 				createAt: new Date()
 			});
+			await createNewPortfolio(`${displayName}'s Portfolio`, PortfolioType.MIXED, resp.user.uid, true);
 		}
 
 		AuthStore.update((store) => {

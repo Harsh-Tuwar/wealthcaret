@@ -25,7 +25,7 @@ export const PortfolioStore = new Store<PortfolioStore>({
 	forceFetch: false,
 });
 
-export const createNewPortfolio = async (portfolioName: string, type: PortfolioType, userId: string) => {
+export const createNewPortfolio = async (portfolioName: string, type: PortfolioType, userId: string, isDefault = false) => {
 	try {
 		log.debug(`Creating new Portfolio for user: ${userId}`);
 
@@ -38,7 +38,8 @@ export const createNewPortfolio = async (portfolioName: string, type: PortfolioT
 			title: portfolioName,
 			type,
 			userId,
-			createdAt: new Date()
+			createdAt: new Date(),
+			default: isDefault
 		});
 
 		PortfolioStore.update((store) => {

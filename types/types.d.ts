@@ -4,8 +4,9 @@ type Portfolio = {
 	type: PortfolioType
 	userId: string
 	createdAt: Date
+	default: boolean
 }
 
-type SearchPickerResults {
+type SearchPickerResults = {
 	quotes: any[]
 }

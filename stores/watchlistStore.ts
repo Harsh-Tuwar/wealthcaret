@@ -138,4 +138,3 @@ export const getAllWatchlistedItems = async (userId: string) => {
 }
 
 registerInDevtools({ WatchlistStore });
-
