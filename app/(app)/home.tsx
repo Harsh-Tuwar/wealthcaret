@@ -6,9 +6,8 @@ import React, { useState } from 'react';
 import { PortfolioStore, getPortfolios } from '@/stores/portfolioStore';
 import { AuthStore } from '@/stores/authStore';
 import { useStoreState } from 'pullstate';
-import { getAllWatchlistedItems } from '@/stores/watchlistStore';
 
-export default function Home() {
+export default function TabOneScreen() {
   const router = useRouter();
   const user = AuthStore.useState((state) => state.user);
   const [loading, setLoading] = useState(true);
@@ -18,10 +17,7 @@ export default function Home() {
     setLoading(true);
 
     if (user) {
-      Promise.all([
-        getPortfolios(user.uid),
-        getAllWatchlistedItems(user.uid)
-      ]).then(() => setLoading(false));
+      getPortfolios(user.uid).then(() => setLoading(false));
     } else {
       setLoading(false);
     }
