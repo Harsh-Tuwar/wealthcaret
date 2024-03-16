@@ -3,12 +3,13 @@ import { View, Text, StyleSheet, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import network from '../../utils/network';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 
 const SearchTickers = () => {
+	const router = useRouter();
 	const [searchValue, setSearchValue] = useState<string>('');
 	const [loading, setLoading] = useState(false);
-	const [searchResults, setSearchResults] = useState<any[]>([]);
+	const [searchResults, setSearchResults] = useState<PickerQuote[]>([]);
 
 	React.useEffect(() => {
 		if (searchValue.length === 0) {
@@ -30,7 +31,7 @@ const SearchTickers = () => {
 	const fetchSeachResults = async () => {
 		const results = await network.get(`/picker/search?query=${searchValue}`) as SearchPickerResults;
 
-		setSearchResults(results.quotes.length ? results.quotes.filter((res) => res.isYahooFinance) : []);
+		setSearchResults(results.quotes.length ? results.quotes.filter((res) => res.isYahooFinance) : [] as PickerQuote[]);
 	};
 
 	return (
@@ -47,7 +48,14 @@ const SearchTickers = () => {
 			<View style={styles.searchResultsContainer}>
 				{loading ? <View style={styles.center}><Text>Loading...</Text></View> : searchResults.length ? searchResults.map((res) => (
 					<View key={res.symbol} style={styles.resultItem}>
-						<Link push href={{ pathname: '/(hidden)/ticker/[symbol]', params: { symbol: res.symbol }}}>
+						<Link push href={{
+							pathname: '/(hidden)/ticker/[symbol]',
+							params: {
+								symbol: res.symbol,
+								shortName: res.shortname,
+								longName: res.longname
+							}
+						}}>
 							<Text>
 								{res.symbol} - {res.shortname} ({res.exchange})
 							</Text>

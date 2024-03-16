@@ -1,6 +1,6 @@
 import { Store, registerInDevtools } from 'pullstate';
 import * as CollectionStrings from '../constants/Firebase';
-import { setDoc, doc, updateDoc, getDoc, increment, addDoc, collection, onSnapshot, getDocs, query, where } from 'firebase/firestore';
+import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 
 import { FIREBASE_DB } from '../firebase';
 
@@ -12,21 +12,34 @@ interface PortfolioStore {
 	forceFetch: boolean;
 }
 
+enum PortfolioType {
+	NONE = '0',
+	CRYPTO = '1',
+	STONKS = '2',
+	MIXED = '3'
+}
+
 export const PortfolioStore = new Store<PortfolioStore>({
 	portfolios: [],
 	lastFetched: null,
 	forceFetch: false,
 });
 
-export const createNewPortfolio = async (portfolioName: string, type: PortfolioType, userId: string) => {
+export const createNewPortfolio = async (portfolioName: string, type: PortfolioType, userId: string, isDefault = false) => {
 	try {
 		log.debug(`Creating new Portfolio for user: ${userId}`);
 
-		await addDoc(collection(FIREBASE_DB, CollectionStrings.FIRESTORE_PORTFOLIO_COLLECTION), {
+		await addDoc(collection(
+			FIREBASE_DB,
+			CollectionStrings.FIREBASE_USERS_COLLECTION,
+			userId,
+			CollectionStrings.FIRESTORE_PORTFOLIO_COLLECTION
+		), {
 			title: portfolioName,
 			type,
 			userId,
-			createdAt: new Date()
+			createdAt: new Date(),
+			default: isDefault
 		});
 
 		PortfolioStore.update((store) => {
@@ -57,7 +70,7 @@ export const getPortfolios = async (userId: string) => {
 			return;
 		}
 
-		const q = query(collection(FIREBASE_DB, CollectionStrings.FIRESTORE_PORTFOLIO_COLLECTION), where("userId", "==", userId));
+		const q = query(collection(FIREBASE_DB, CollectionStrings.FIREBASE_USERS_COLLECTION, userId, CollectionStrings.FIRESTORE_PORTFOLIO_COLLECTION), where("userId", "==", userId));
 		const querySnapshot = await getDocs(q);
 
 		const pfls: Portfolio[] = [];
