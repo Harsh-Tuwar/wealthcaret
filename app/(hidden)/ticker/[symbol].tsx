@@ -7,6 +7,7 @@ import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
 import { LineGraph, GraphPoint } from 'react-native-graph';
 
+import helpers from '../../../utils/helpers';
 import network from '../../../utils/network';
 import { WatchlistStore, addToWatchlist, removeFromWatchlist } from '@/stores/watchlistStore';
 import { AuthStore } from '@/stores/authStore';
@@ -14,6 +15,7 @@ import { TextInput } from 'react-native-gesture-handler';
 import { Picker } from '@react-native-picker/picker';
 import { PortfolioStore } from '@/stores/portfolioStore';
 import { addTransaction } from '@/stores/txStore';
+
 
 type PriceHistory = {
 	value: string
@@ -52,7 +54,7 @@ interface FSTxItem {
 
 const TickerData = () => {
 	const router = useRouter();
-	const { symbol } = useLocalSearchParams();
+	const { symbol, shortName, longName } = useLocalSearchParams();
 	const [history, setHistory] = useState<GraphPoint[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [selectedPoint, setSelectedPoint] = useState<GraphPoint | null>(null);
@@ -100,7 +102,7 @@ const TickerData = () => {
 	const handleValueChange = (itemValue: BuyPriceType) => setTxData({ ...txData, buyType: itemValue });
 
 	const getGraphData = async () => {
-		const response = await network.get(`/picker/chart?query=${symbol}&interval=15m`);
+		const response = await network.get(`/picker/chart?query=${symbol}&interval=2m`);
 
 		return response as PriceHistory[];
 	}
@@ -110,7 +112,7 @@ const TickerData = () => {
 	};
 
 	const handleAddToWatchlist = async () => {
-		await addToWatchlist(symbol as string, userID!);
+		await addToWatchlist(symbol as string, shortName as string, longName as string, userID!);
 		Alert.alert(`${symbol} added to the watchlist!`);
 	};
 

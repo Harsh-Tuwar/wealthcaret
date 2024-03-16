@@ -3,7 +3,7 @@ import { Store, registerInDevtools } from 'pullstate';
 import { FIREBASE_DB } from '@/firebase';
 
 import { log } from '@/utils/logger';
-import { addDoc, collection, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs } from 'firebase/firestore';
 
 import { FIREBASE_USERS_COLLECTION, FIREBASE_WATCHLIST_COLLECTION } from '../constants/Firebase';
 
@@ -11,6 +11,8 @@ interface WatchlistItem {
 	symbol: string;
 	createdAt: string;
 	id: string;
+	shortName: string
+	longName: string
 }
 
 interface WatchlistStore {
@@ -25,7 +27,7 @@ export const WatchlistStore = new Store<WatchlistStore>({
 	forceFetch: false
 });
 
-export const addToWatchlist = async (symbol: string, userId: string) => {
+export const addToWatchlist = async (symbol: string, shortName: string, longName: string, userId: string) => {
 	try {
 		log.debug(`Adding ${symbol} to the watchlist for user: ${userId}`);
 
@@ -39,11 +41,19 @@ export const addToWatchlist = async (symbol: string, userId: string) => {
 		), {
 			symbol,
 			createdAt: itemCreationDate,
+			shortName,
+			longName
 		});
 
 		WatchlistStore.update((store) => {
 			store.forceFetch = true;
-			store.items.push({ symbol, createdAt: itemCreationDate.toString(), id: newDocData.id });
+			store.items.push({
+				symbol,
+				createdAt: itemCreationDate.toString(),
+				id: newDocData.id,
+				shortName,
+				longName
+			});
 		});
 
 		log.debug(`${symbol} added to the watchlist for user: ${userId}`);

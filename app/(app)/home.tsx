@@ -8,7 +8,7 @@ import { AuthStore } from '@/stores/authStore';
 import { useStoreState } from 'pullstate';
 import { getAllWatchlistedItems } from '@/stores/watchlistStore';
 
-export default function TabOneScreen() {
+export default function Home() {
   const router = useRouter();
   const user = AuthStore.useState((state) => state.user);
   const [loading, setLoading] = useState(true);
