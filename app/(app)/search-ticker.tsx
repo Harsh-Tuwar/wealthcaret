@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import network from '../../utils/network';
 import { Link, useRouter } from 'expo-router';
 
 const SearchTickers = () => {
-	const router = useRouter();
 	const [searchValue, setSearchValue] = useState<string>('');
 	const [loading, setLoading] = useState(false);
 	const [searchResults, setSearchResults] = useState<PickerQuote[]>([]);
@@ -46,7 +45,7 @@ const SearchTickers = () => {
 			/>
 
 			<View style={styles.searchResultsContainer}>
-				{loading ? <View style={styles.center}><Text>Loading...</Text></View> : searchResults.length ? searchResults.map((res) => (
+				{loading ? <View style={styles.center}><ActivityIndicator /></View> : searchResults.length ? searchResults.map((res) => (
 					<View key={res.symbol} style={styles.resultItem}>
 						<Link push href={{
 							pathname: '/(hidden)/ticker/[symbol]',

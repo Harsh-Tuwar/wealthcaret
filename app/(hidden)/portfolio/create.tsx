@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {Picker} from '@react-native-picker/picker';
 import { View, Text, TextInput, StyleSheet, Button } from 'react-native';
 import { createNewPortfolio } from '@/stores/portfolioStore';
 import { AuthStore } from '@/stores/authStore';
-import { User } from 'firebase/auth';
 import { useRouter } from 'expo-router';
-import { log } from '@/utils/logger';
 
 enum PortfolioType {
 	NONE = '0',

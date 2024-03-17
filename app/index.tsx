@@ -19,8 +19,6 @@ const Index = () => {
 
 		const isAuthGroup = segments[0] === "(auth)";
 
-		console.log(isLoggedIn);
-
 		if (!isLoggedIn && !isAuthGroup) {
 			router.replace('/(auth)/login');
 		} else if (isLoggedIn) {

@@ -1,33 +1,31 @@
-import { Button, Pressable, StyleSheet, Text } from 'react-native';
+import { Button, StyleSheet, Text } from 'react-native';
 
 import { View } from '@/components/Themed';
 import { Link, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import { PortfolioStore, getPortfolios } from '@/stores/portfolioStore';
 import { AuthStore } from '@/stores/authStore';
 import { useStoreState } from 'pullstate';
 import { getAllWatchlistedItems } from '@/stores/watchlistStore';
+import { useQuery } from '@tanstack/react-query';
 
 export default function Home() {
   const router = useRouter();
   const user = AuthStore.useState((state) => state.user);
-  const [loading, setLoading] = useState(true);
   const portfolios = useStoreState(PortfolioStore, s => s.portfolios);
+  const { isFetching, isLoading, isPending } = useQuery({
+    queryKey: ['portfolios-nd-watchlists'],
+    queryFn: async () => {
+      if (user) {
+        await getPortfolios(user.uid);
+        await getAllWatchlistedItems(user.uid);
+      }
 
-  React.useEffect(() => {
-    setLoading(true);
-
-    if (user) {
-      Promise.all([
-        getPortfolios(user.uid),
-        getAllWatchlistedItems(user.uid)
-      ]).then(() => setLoading(false));
-    } else {
-      setLoading(false);
+      return null;
     }
-  }, []);
+  });
 
-  if (loading) {
+  if (isLoading || isFetching || isPending) {
     return <View style={styles.container}><Text>Loading...</Text></View>;
   }
 
