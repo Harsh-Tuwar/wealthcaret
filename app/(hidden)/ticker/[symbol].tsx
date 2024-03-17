@@ -207,7 +207,7 @@ const TickerData = () => {
 			<View>
 				<Button onPress={() => router.back()} title='back'></Button>
 				<Text>TickerData: {symbol}</Text>
-				<Text> ${selectedPoint !== null ? selectedPoint?.value.toFixed(3) : lastFetchedItem?.value.toFixed(3)}</Text>
+				<Text> ${selectedPoint !== null ? selectedPoint?.value : lastFetchedItem?.value}</Text>
 				<Text>{selectedPoint !== null ? selectedPoint?.date.toLocaleString() : lastFetchedItem?.date.toLocaleString()}</Text>
 
 				<View style={styles.graph}>
