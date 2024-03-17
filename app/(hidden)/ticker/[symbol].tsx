@@ -15,7 +15,9 @@ import { TextInput } from 'react-native-gesture-handler';
 import { Picker } from '@react-native-picker/picker';
 import { PortfolioStore } from '@/stores/portfolioStore';
 import { addTransaction } from '@/stores/txStore';
+import { useQuery } from '@tanstack/react-query';
 
+import { GRAPH_REFETCH_MS } from '@/constants';
 
 type PriceHistory = {
 	value: string
@@ -52,15 +54,46 @@ interface FSTxItem {
 	symbol: string
 }
 
+type GraphTimelineOptions = '1h' | '1d' | '1w' | '1m' | '1y';
+
 const TickerData = () => {
 	const router = useRouter();
 	const { symbol, shortName, longName } = useLocalSearchParams();
-	const [history, setHistory] = useState<GraphPoint[]>([]);
-	const [loading, setLoading] = useState(true);
 	const [selectedPoint, setSelectedPoint] = useState<GraphPoint | null>(null);
 	const userID = AuthStore.useState((state) => state.user?.uid);
 	const portfolios = PortfolioStore.useState((state) => state.portfolios);
 	const alredyWatchlisted = WatchlistStore.useState((state) => state.items.find((item) => item.symbol === symbol));
+	const [selectedGraphOpt, setSelectedGraphOpt] = useState<GraphTimelineOptions>('1h');
+	const [lastFetchedItem, setLastFetchedItem] = useState<GraphPoint | null>(null);
+
+	const {
+		isLoading,
+		data,
+		isError,
+		error,
+		refetch,
+		isFetched,
+	} = useQuery({
+		queryKey: ['picker-graph'],
+		refetchInterval: GRAPH_REFETCH_MS,
+		queryFn: async () => {
+			const startDT = getStartTimeByGraphOpt(selectedGraphOpt);
+			const graphData = await getGraphData(startDT.toISOString());
+
+			const graphPointItems = graphData.map((historyItem) => ({
+				date: new Date(historyItem.date),
+				value: Number.parseFloat(historyItem.value)
+			})) as GraphPoint[];
+
+			setLastFetchedItem({
+				date: graphPointItems[graphPointItems.length - 1].date,
+				value: graphPointItems[graphPointItems.length - 1].value
+			});
+
+			return graphPointItems;
+		},
+	});
+	
 	const bottomSheetRef = React.useRef<BottomSheet>(null);
 	const snapPoints = React.useMemo(() => ['30%', '95%'], []);
 
@@ -76,15 +109,12 @@ const TickerData = () => {
 	});
 
 	useEffect(() => {
-		getGraphData().then((priceHistory) => {
-			const mappedPriceHistory = priceHistory.map((item) => ({
-				date: new Date(item.date),
-				value: Number.parseFloat(item.value)
-			}));
+		refetch();
 
-			setHistory(mappedPriceHistory);
-		}).catch((err) => console.log(err)).finally(() => setLoading(false));
-	}, []);
+		if (data) {
+			setLastFetchedItem({ date: data[data.length - 1].date, value: data[data.length - 1].value });
+		}
+	}, [isFetched, selectedGraphOpt]);
 
 	const resetTxDataState = () => {
 		setTxData({
@@ -101,8 +131,18 @@ const TickerData = () => {
 
 	const handleValueChange = (itemValue: BuyPriceType) => setTxData({ ...txData, buyType: itemValue });
 
-	const getGraphData = async () => {
-		const response = await network.get(`/picker/chart?query=${symbol}&interval=2m`);
+	const getGraphData = async (start: string) => {
+		let granuality = '1m';
+
+		if (selectedGraphOpt === '1w') {
+			granuality = '2m';
+		} else if (selectedGraphOpt === '1m') {
+			granuality = '5m';
+		} else if (selectedGraphOpt === '1y') {
+			granuality = '60m';
+		}
+
+		const response = await network.get(`/picker/chart?query=${symbol}&interval=${granuality}&start=${start}`);
 
 		return response as PriceHistory[];
 	}
@@ -148,8 +188,18 @@ const TickerData = () => {
 		bottomSheetRef.current?.forceClose();
 	};
 
-	if (loading) {
+	const getStartTimeByGraphOpt = (graphOpt: GraphTimelineOptions) => {
+		return helpers.getStartDateForGraph(graphOpt);
+	}
+
+	if (isLoading || !isFetched) {
 		return <View style={styles.loading}><Text>Loading...</Text></View>;
+	}
+
+	if (isError || !data) {
+		const errorMsg = isError ? error.message : 'No data found!';
+
+		return <Text>{errorMsg}</Text>
 	}
 
 	return (
@@ -157,26 +207,34 @@ const TickerData = () => {
 			<View>
 				<Button onPress={() => router.back()} title='back'></Button>
 				<Text>TickerData: {symbol}</Text>
-				<Text> ${selectedPoint?.value.toFixed(3)}</Text>
-				<Text>{selectedPoint?.date.toISOString()}</Text>
+				<Text> ${selectedPoint !== null ? selectedPoint?.value.toFixed(3) : lastFetchedItem?.value.toFixed(3)}</Text>
+				<Text>{selectedPoint !== null ? selectedPoint?.date.toLocaleString() : lastFetchedItem?.date.toLocaleString()}</Text>
 
 				<View style={styles.graph}>
 					<LineGraph
 						style={{ width: '100%', height: 300 }}
-						points={history}
+						points={data}
 						animated={true}
 						color="#017560"
-						gradientFillColors={['#0175605D', '#7476df00']}
 						enablePanGesture
 						onPointSelected={onPointSelected}
+						onGestureEnd={() => {
+							setSelectedPoint(null);
+							setLastFetchedItem({ date: data[data.length - 1].date, value: data[data.length - 1].value });
+						}}
 						verticalPadding={25}
-						onGestureEnd={() => setSelectedPoint(null)}
 						enableIndicator
 						indicatorPulsating
 						enableFadeInMask
 					/>
 				</View>
-
+				<View style={styles.buttonsContainer}>
+					<Button title='1h' color={selectedGraphOpt === '1h' ? 'red' : '#2196F3'} onPress={() => {setSelectedGraphOpt('1h')}}></Button>
+					<Button title='1d' color={selectedGraphOpt === '1d' ? 'red' : '#2196F3'} onPress={() => {setSelectedGraphOpt('1d')}}></Button>
+					<Button title='1w' color={selectedGraphOpt === '1w' ? 'red' : '#2196F3'} onPress={() => {setSelectedGraphOpt('1w')}}></Button>
+					<Button title='1m' color={selectedGraphOpt === '1m' ? 'red' : '#2196F3'} onPress={() => {setSelectedGraphOpt('1m')}}></Button>
+					<Button title='1y' color={selectedGraphOpt === '1y' ? 'red' : '#2196F3'} onPress={() => {setSelectedGraphOpt('1y')}}></Button>
+				</View>
 				<Button onPress={alredyWatchlisted ? handleRemoveFromWatchlist : handleAddToWatchlist} title={alredyWatchlisted ? 'Remove from Watchlist' : 'Add to Watchlist'}></Button>
 				<View style={{ marginTop: 10 }} />
 				<Button onPress={() => {
@@ -282,6 +340,19 @@ const styles = StyleSheet.create({
 	portfolioField: {
 		backgroundColor:'gray',
 		color: 'white',
+	},
+	buttonsContainer: {
+		flexDirection: 'row',
+		justifyContent: 'space-evenly',
+		marginBottom: 10
+	},
+	selectedBtn: {
+		color: ''
+	},
+	notSelectedBtn: {
+		backgroundColor: 'transparent',
+		// borderRadius: 10,
+		// borderWidth: 1
 	}
 });
 
