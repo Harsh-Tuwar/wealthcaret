@@ -1,7 +1,9 @@
 import yahooFinance from 'yahoo-finance2';
 import { Request, Response } from 'express';
 
+import helpers from '../utils/helpers';
 import { logger } from '../utils/logger';
+import { TickerDataResponse } from '../types/types';
 
 export const SearchPickers_ByQuery = async (req: Request, res: Response) => {
 	try {
@@ -18,7 +20,7 @@ export const SearchPickers_ByQuery = async (req: Request, res: Response) => {
 			});
 		}
 
-		const response = await yahooFinance.search(searchQuery as string);
+		const response = await yahooFinance.search(searchQuery as string, { region: 'US',  });
 
 		logger.info(`found ${response.count} results! Returning to the client!`);
 
@@ -34,7 +36,6 @@ export const SearchPickers_ByQuery = async (req: Request, res: Response) => {
 		});
 	}
 };
-
 
 export const GetPickerData_ByQuery = async (req: Request, res: Response) => {
 	try {
@@ -66,64 +67,86 @@ export const GetPickerData_ByQuery = async (req: Request, res: Response) => {
 	}
 };
 
-
-export const GetPickerChartData_ByQuery = async (req: Request, res: Response) => {
+export const GetPickerDetailedData_ByQuery = async (req: Request, res: Response) => {
 	try {
-		const { query: searchQuery, interval, start, end } = req.query as GetChartPickerDataQuery;
+		const { picker } = req.query;
 
-		logger.info(`Received a chart query: ${searchQuery}`);
+		logger.info(`Received a detailed query request: ${picker}`);
 
-		if (!searchQuery) {
-			logger.info(`No search query provided, returning none!`);
+		if (!picker) {
+			logger.info(`No picker provided, returning empty response!`);
 
 			return res.json({
-				chart: {},
-				error: false
+				data: {},
+				error: false,
+				reason: 'No picker provided in the query string!'
 			});
 		}
 
-		let startPeriod = start;
-		let endPeriod = new Date();
-		
-		if (!startPeriod) {
-			const tempDate = new Date();
-			const oneMonthOld = tempDate.getMonth() === 0 ? 11 : tempDate.getMonth() - 1;
-			tempDate.setMonth(oneMonthOld);
-
-			startPeriod = tempDate;
-		}
-
-		const chart = await yahooFinance.chart(searchQuery as string, {
-			period1: new Date(startPeriod),
-			period2: endPeriod,
-			interval: interval ?? '15m',
+		const modulerStockData = await yahooFinance.quoteSummary(picker as string, {
+			modules: [
+				'assetProfile',
+				'earningsTrend',
+				'price',
+				'summaryDetail',
+				'financialData',
+				'defaultKeyStatistics',
+				'cashflowStatementHistory'
+			]
 		});
 
-		let ptData: { value: number, date: Date }[] = [];
+		let tickerData: TickerDataResponse = {
+			pricePerShare: modulerStockData.price.regularMarketPrice,
+			symbol: modulerStockData.price.symbol,
+			currency: modulerStockData.price.currency,
+			name: modulerStockData.price.longName,
+			marketCap: modulerStockData.price.marketCap,
+			bookValuePerShare: modulerStockData.defaultKeyStatistics.bookValue,
+			eps: modulerStockData.defaultKeyStatistics.trailingEps,
+			sector: modulerStockData.assetProfile.sector,
+			peRatio: modulerStockData.summaryDetail.trailingPE,
+			dividend: modulerStockData.summaryDetail.dividendRate,
+			dividendYield: modulerStockData.summaryDetail.dividendYield,
+			fiftyTwoWeekRange: {
+				low: modulerStockData.summaryDetail.fiftyTwoWeekLow,
+				high: modulerStockData.summaryDetail.fiftyTwoWeekHigh
+			},
+		};
 
-		if (chart) {
-			let notNullValue = 0;
-
-			ptData = chart.quotes.map((q) => {
-				if (q.close !== null) {
-					notNullValue = q.close;
-				}
-
-				return {
-					date: new Date(q.date),
-					value: notNullValue
-				}
-			});
+		if (modulerStockData.earningsTrend.trend.length) {
+			const nextYear = modulerStockData.earningsTrend.trend?.find((t) => t.period === '+1y');
+			tickerData.epsGrowthRate = (nextYear.growth * 100);
 		}
+
+		tickerData.calculations = helpers.getCalculations({
+			eps: tickerData.eps,
+			bookValuePerShare: tickerData.bookValuePerShare,
+			pricePerShare: +tickerData.pricePerShare,
+			peRatio: tickerData.peRatio,
+			epsGrowthRate: tickerData.epsGrowthRate,
+			dividendYield: tickerData.dividendYield * 100,
+			returnOnEquity: modulerStockData.financialData.returnOnEquity
+		});
+
+		tickerData.analysis = helpers.evaluateStock({
+			currentPrice: parseFloat(tickerData.pricePerShare.toString()),
+			fairValuePrice: tickerData.calculations.fairValuePrice,
+			grahamGrowthNumber: tickerData.calculations.grahamGrowthNumber,
+			grahamNumber: tickerData.calculations.grahamNumber,
+			lynchRatio: tickerData.calculations.lynchRatio,
+			pegRatio: tickerData.calculations.pegRatio,
+			priceToBookRatio: tickerData.calculations.priceToBookRatio,
+			returnOnEquity: tickerData.calculations.returnOnEquity,
+			sector: tickerData.sector.replace(' ', '_'),
+		})
 
 		return res.json({
 			error: false,
-			data: ptData,
+			data: tickerData,
 		});
 	} catch (error) {
 		logger.error(error);
 		return res.json({
-			chart: [],
 			message: error,
 			error: true
 		});

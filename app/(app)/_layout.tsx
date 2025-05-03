@@ -1,54 +1,80 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
-
-import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-}) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
-}
+const TabBarIcon = (name: any, focused: boolean) => (
+  <FontAwesome
+    name={name}
+    size={24}
+    color={focused ? '#111' : '#888'}
+    solid={focused}
+    style={{ marginBottom: 2 }}
+  />
+);
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? 'light';
 
   return (
     <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+      screenOptions={({ route }) => ({
         headerShown: useClientOnlyValue(false, false),
-      }}
+        tabBarShowLabel: true,
+        tabBarActiveTintColor: '#111',
+        tabBarInactiveTintColor: '#888',
+        tabBarLabelStyle: {
+          fontWeight: 'bold',
+          fontSize: 12,
+          marginTop: 2,
+        },
+        tabBarStyle: {
+          backgroundColor: '#fff',
+          borderTopWidth: 0,
+          height: 80,
+          marginHorizontal: 8,
+          marginBottom: 16,
+          borderRadius: 24,
+          paddingHorizontal: 12,
+          paddingBottom: 10,
+          paddingTop: 10,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.08,
+          shadowRadius: 8,
+          elevation: 8,
+          position: 'absolute',
+        },
+      })}
     >
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ focused }) => TabBarIcon('home', focused),
         }}
       />
       <Tabs.Screen
         name="search-ticker"
         options={{
-          title: 'Search',
-          tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+          tabBarLabel: 'Search',
+          tabBarIcon: ({ focused }) => TabBarIcon('search', focused),
         }}
       />
       <Tabs.Screen
         name="watchlist"
         options={{
-          title: 'Watchlist',
-          tabBarIcon: ({ color }) => <TabBarIcon name="star" color={color} />,
+          tabBarLabel: 'Watchlist',
+          href: null,
+          tabBarIcon: ({ focused }) => TabBarIcon('star', focused),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
-          tabBarIcon: ({ color }) => <TabBarIcon name="cog" color={color} />,
+          tabBarLabel: 'Settings',
+          tabBarIcon: ({ focused }) => TabBarIcon('cog', focused),
         }}
       />
     </Tabs>
