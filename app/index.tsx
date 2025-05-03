@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import { useRootNavigationState } from 'expo-router';
 import { useRouter, useSegments } from 'expo-router';
 
-import { AuthStore } from '@/stores/authStore';
+import { AuthStore } from '@/stores/useAuthStore';
 
 const Index = () => {
 	const router = useRouter();

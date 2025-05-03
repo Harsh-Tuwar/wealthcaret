@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import Constants from 'expo-constants';
 import MenuItem from '@/components/settings/MenuItem';
-import { appSignOut, AuthStore } from '@/stores/authStore';
+import { appSignOut, AuthStore } from '@/stores/useAuthStore';
 import { useRouter } from 'expo-router';
 import { log } from '@/utils/logger';
 

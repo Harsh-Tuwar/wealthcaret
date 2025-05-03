@@ -2,16 +2,16 @@ import { Button, StyleSheet, Text } from 'react-native';
 import { View } from '@/components/Themed';
 import { Link, useRouter } from 'expo-router';
 import React from 'react';
-import { PortfolioStore, getPortfolios } from '@/stores/portfolioStore';
-import { AuthStore } from '@/stores/authStore';
-import { useStoreState } from 'pullstate';
-import { getAllWatchlistedItems } from '@/stores/watchlistStore';
+import { getPortfolios } from '@/stores/portfolioStore';
+import { getAllWatchlistedItems } from '@/stores/useWatchlistStore';
 import { useQuery } from '@tanstack/react-query';
+import { usePortfolioStore } from '@/stores/usePortfolioStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 export default function Home() {
   const router = useRouter();
-  const user = AuthStore.useState((state) => state.user);
-  const portfolios = useStoreState(PortfolioStore, s => s.portfolios);
+  const user = useAuthStore((s) => s.user);
+  const portfolios = usePortfolioStore((state) => state.portfolios);
   const { isFetching, isLoading, isPending } = useQuery({
     queryKey: ['portfolios-nd-watchlists'],
     queryFn: async () => {

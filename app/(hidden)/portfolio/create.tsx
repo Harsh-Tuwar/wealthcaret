@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import {Picker} from '@react-native-picker/picker';
 import { View, Text, TextInput, StyleSheet, Button } from 'react-native';
-import { createNewPortfolio } from '@/stores/portfolioStore';
-import { AuthStore } from '@/stores/authStore';
 import { useRouter } from 'expo-router';
+import { createNewPortfolio } from '@/stores/portfolioStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 enum PortfolioType {
 	NONE = '0',
@@ -18,7 +18,7 @@ const CreatePortfolio: React.FC = () => {
 	const [loading, setLoading] = useState();
 	const [portfolioName, setPortfolioName] = useState<string>('');
 	const [type, setType] = useState<PortfolioType>(PortfolioType.NONE);
-	const user = AuthStore.useState((state) => state.user);
+	const user = useAuthStore((state) => state.user);
 	
 	const handleValueChange = (itemValue: PortfolioType) => setType(itemValue);
 

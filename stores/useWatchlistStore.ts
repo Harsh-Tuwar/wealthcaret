@@ -1,31 +1,40 @@
-import { Store, registerInDevtools } from 'pullstate';
-
+import { create } from 'zustand';
 import { FIREBASE_DB } from '@/firebase';
-
 import { log } from '@/utils/logger';
 import { addDoc, collection, deleteDoc, doc, getDocs } from 'firebase/firestore';
-
 import { FIREBASE_USERS_COLLECTION, FIREBASE_WATCHLIST_COLLECTION } from '../constants/Firebase';
 
 interface WatchlistItem {
 	symbol: string;
 	createdAt: string;
 	id: string;
-	shortName: string
-	longName: string
+	shortName: string;
+	longName: string;
 }
 
 interface WatchlistStore {
 	items: WatchlistItem[];
 	lastFetched: Date | null;
 	forceFetch: boolean;
+	setItems: (items: WatchlistItem[]) => void;
+	addItem: (item: WatchlistItem) => void;
+	removeItem: (symbol: string) => void;
+	setForceFetch: (force: boolean) => void;
+	setLastFetched: (date: Date) => void;
 }
 
-export const WatchlistStore = new Store<WatchlistStore>({
+export const useWatchlistStore = create<WatchlistStore>((set) => ({
 	items: [],
 	lastFetched: null,
-	forceFetch: false
-});
+	forceFetch: false,
+	setItems: (items) => set({ items }),
+	addItem: (item) => set((state) => ({ items: [...state.items, item] })),
+	removeItem: (symbol) => set((state) => ({
+		items: state.items.filter(item => item.symbol !== symbol),
+	})),
+	setForceFetch: (force) => set({ forceFetch: force }),
+	setLastFetched: (date) => set({ lastFetched: date }),
+}));
 
 export const addToWatchlist = async (symbol: string, shortName: string, longName: string, userId: string) => {
 	try {
@@ -42,19 +51,18 @@ export const addToWatchlist = async (symbol: string, shortName: string, longName
 			symbol,
 			createdAt: itemCreationDate,
 			shortName,
-			longName
+			longName,
 		});
 
-		WatchlistStore.update((store) => {
-			store.forceFetch = true;
-			store.items.push({
-				symbol,
-				createdAt: itemCreationDate.toString(),
-				id: newDocData.id,
-				shortName,
-				longName
-			});
-		});
+		const newItem = {
+			symbol,
+			createdAt: itemCreationDate.toString(),
+			id: newDocData.id,
+			shortName,
+			longName,
+		};
+
+		useWatchlistStore.getState().addItem(newItem);
 
 		log.debug(`${symbol} added to the watchlist for user: ${userId}`);
 	} catch (error) {
@@ -68,7 +76,7 @@ export const removeFromWatchlist = async (symbol: string, userId: string) => {
 	try {
 		log.debug(`Removing ${symbol} from the watchlist for user: ${userId}`);
 
-		const watchlistStore = WatchlistStore.getRawState();
+		const watchlistStore = useWatchlistStore.getState();
 		const itemToRemoveIndex = watchlistStore.items.findIndex((item) => item.symbol === symbol);
 
 		if (itemToRemoveIndex === -1) {
@@ -86,10 +94,7 @@ export const removeFromWatchlist = async (symbol: string, userId: string) => {
 
 		await deleteDoc(docRef);
 
-		WatchlistStore.update((store) => {
-			store.forceFetch = true;
-			store.items.splice(itemToRemoveIndex, 1);
-		});
+		useWatchlistStore.getState().removeItem(symbol);
 
 		log.debug(`${symbol} deleted from the watchlist for user: ${userId}`);
 	} catch (error) {
@@ -103,13 +108,13 @@ export const getAllWatchlistedItems = async (userId: string) => {
 	try {
 		log.debug(`Fetching watchlists for user: ${userId}`);
 
-		let lastFetched = WatchlistStore.getRawState().lastFetched;
+		let lastFetched = useWatchlistStore.getState().lastFetched;
 		let fiveMinutesAgo = new Date(new Date().getTime() - 5 * 60 * 1000);
 
 		if (lastFetched === null) {
 			lastFetched = new Date();
 		}
-		
+
 		if (lastFetched <= fiveMinutesAgo) {
 			log.debug(`Skipping fetching watchlists!`);
 			return;
@@ -134,10 +139,8 @@ export const getAllWatchlistedItems = async (userId: string) => {
 			count++;
 		});
 
-		WatchlistStore.update((store) => {
-			store.items = watchlistedItems;
-			store.lastFetched = new Date();
-		});
+		useWatchlistStore.getState().setItems(watchlistedItems);
+		useWatchlistStore.getState().setLastFetched(new Date());
 
 		log.debug(`Found ${count} watchlisted items for user: ${userId}`);
 	} catch (error) {
@@ -146,5 +149,3 @@ export const getAllWatchlistedItems = async (userId: string) => {
 		throw error;
 	}
 }
-
-registerInDevtools({ WatchlistStore });

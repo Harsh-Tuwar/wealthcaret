@@ -1,10 +1,13 @@
-import { Store, registerInDevtools } from 'pullstate';
+// import { Store, registerInDevtools } from 'pullstate';
+import { create } from 'zustand';
 import * as CollectionStrings from '../constants/Firebase';
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 
 import { FIREBASE_DB } from '../firebase';
 
 import { log } from '@/utils/logger';
+import { Portfolio } from '@/types/types';
+import { usePortfolioStore } from './usePortfolioStore';
 
 interface PortfolioStore {
 	portfolios: Portfolio[];
@@ -18,12 +21,6 @@ enum PortfolioType {
 	STONKS = '2',
 	MIXED = '3'
 }
-
-export const PortfolioStore = new Store<PortfolioStore>({
-	portfolios: [],
-	lastFetched: null,
-	forceFetch: false,
-});
 
 export const createNewPortfolio = async (portfolioName: string, type: PortfolioType, userId: string, isDefault = false) => {
 	try {
@@ -42,9 +39,7 @@ export const createNewPortfolio = async (portfolioName: string, type: PortfolioT
 			default: isDefault
 		});
 
-		PortfolioStore.update((store) => {
-			store.forceFetch = true
-		});
+		usePortfolioStore.getState().setForceFetch(true);
 
 		log.debug(`Portfolio created successfully for user: ${userId}`)
 	} catch (error) {
@@ -58,7 +53,7 @@ export const getPortfolios = async (userId: string) => {
 	try {
 		log.debug(`Fetching portfolios for user: ${userId}`);
 
-		let lastFetched = PortfolioStore.getRawState().lastFetched;
+		let lastFetched = usePortfolioStore.getState().lastFetched;
 		let fiveMinutesAgo = new Date(new Date().getTime() - 5 * 60 * 1000);
 
 		if (lastFetched === null) {
@@ -83,9 +78,9 @@ export const getPortfolios = async (userId: string) => {
 			count++;
 		});
 
-		PortfolioStore.update((store) => {
-			store.portfolios = pfls;
-			store.lastFetched = new Date();
+		usePortfolioStore.setState({
+			portfolios: pfls,
+			lastFetched: new Date()
 		});
 
 		log.debug(`Found ${count} portfolios for user: ${userId}`);
@@ -95,5 +90,3 @@ export const getPortfolios = async (userId: string) => {
 		throw error;
 	}
 }
-
-registerInDevtools({ PortfolioStore });
