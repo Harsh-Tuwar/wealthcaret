@@ -1,13 +1,62 @@
-type Portfolio = {
+export enum AnalysisSummaryVerdict {
+	UNDERVALUED = 1,
+	FAIR = 2,
+	OVERVALUED = 3,
+	UNRELIABLE = 4
+}
+
+export type AnalysisSummary = {
+	metric: string
+	value: number
+	interpretation: string
+	verdict: AnalysisSummaryVerdict
+}
+
+export type Analysis = {
+	summary: AnalysisSummary[],
+	sectorTip: string
+}
+
+export type DetailedPickerData = {
+	pricePerShare?: number | string
+	peRatio?: number
+	dividend?: number
+	eps?: number
+	epsGrowthRate?: number
+	currency?: string
+	bookValuePerShare?: number
+	dividendYield?: number
+	freeCashFlow?: number
+	marketCap?: number
+	symbol?: string
+	name?: string
+	sector?: string
+	fiftyTwoWeekRange?: {
+		low: number
+		high: number
+	}
+	calculations?: {
+		grahamNumber: number
+		priceToBookRatio: number
+		pegRatio: number
+		lynchRatio: number
+		grahamGrowthNumber: number
+		fairValuePrice: number
+		returnOnEquity: number
+	},
+	analysis: Analysis
+}
+
+export type Portfolio = {
 	title: string
 	id: string
-	type: PortfolioType
+	type: any
 	userId: string
 	createdAt: Date
 	default: boolean
 }
 
-type PickerQuote = {
+export type PickerQuote = {
 	exchange: string
 	shortname: string
 	quoteType: string
@@ -31,11 +80,12 @@ type SearchPickerNewsItemThumbnailResolutionItem = {
 	tag: string
 }
 
+
 type SearchPickerNewsItemThumbnail = {
 	resolutions: SearchPickerNewsItemThumbnailResolutionItem[]
 }
 
-type SearchPickerNewsItem = {
+export type SearchPickerNewsItem = {
 	uuid: string
 	title: string
 	link: string
@@ -46,10 +96,9 @@ type SearchPickerNewsItem = {
 	relatedTickers: string[]
 }
 
-type SearchPickerResults = {
+export type SearchPickerResults = {
     count: number
 	explains: any[]
-    quotes: PickerQuote[]
     news: SearchPickerNewsItem[]
     nav: any[]
     lists: any[]

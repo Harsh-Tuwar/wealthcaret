@@ -6,3 +6,36 @@ type GetChartPickerDataQuery = {
 	start: Date | string | number,
 	end: Date | string | number
 }
+
+type MarketStatusReqResponse = {
+	market_type: string;
+	region: string;
+	primary_exchanges: string;
+	local_open: string;
+	local_close: string;
+	current_status: string;
+	notes: string;
+}
+
+type GetCalculationsParams = {
+	eps: number,
+	bookValuePerShare: number
+	pricePerShare: number
+	peRatio: number
+	epsGrowthRate: number
+	dividendYield: number,
+	returnOnEquity: number
+};
+
+type EvalueStockParams = {
+	grahamNumber: number
+	priceToBookRatio: number
+	pegRatio: number 
+	lynchRatio: number
+	grahamGrowthNumber: number
+	fairValuePrice: number
+	returnOnEquity: number
+	currentPrice: number
+	sector: string
+}
+

@@ -34,8 +34,8 @@ const Watchlist = () => {
 					<Link
 						push
 						href={{
-							pathname: "/(hidden)/ticker/[symbol]",
-							params: { symbol: wItem.symbol }
+							pathname: "/(hidden)/ticker/[ticker_info]",
+							params: { ticker_info: wItem.symbol }
 						}}
 					>
 						<View>

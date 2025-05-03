@@ -1,9 +1,12 @@
 import express, { Express, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
+import dotenv from 'dotenv';
 
 import { logger } from './utils/logger';
 import { routes } from './routes';
+
+dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
