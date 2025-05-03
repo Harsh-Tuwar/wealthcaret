@@ -1,7 +1,7 @@
 import gaussian from 'gaussian';
 import { GraphPoint } from 'react-native-graph';
 
-type GraphTimelineOptions = '1h' | '1d' | '1w' | '1m' | '1y';
+type GraphTimelineOptions = '3mo' | '1d' | '1w' | '1m' | '1y';
 
 abstract class helpers {
 	private static weightedRandom(mean: number, variance: number) {
@@ -9,6 +9,24 @@ abstract class helpers {
 		// Take a random sample using inverse transform sampling method.
 		return distribution.ppf(Math.random());
 	}
+
+	public static formatLargeNumber(num: number): string {
+		if (isNaN(num)) return 'N/A';
+	  
+		const absNum = Math.abs(num);
+	  
+		if (absNum >= 1.0e+12) {
+		  return (num / 1.0e+12).toFixed(2).replace(/\.00$/, '') + 'T';
+		} else if (absNum >= 1.0e+9) {
+		  return (num / 1.0e+9).toFixed(2).replace(/\.00$/, '') + 'B';
+		} else if (absNum >= 1.0e+6) {
+		  return (num / 1.0e+6).toFixed(2).replace(/\.00$/, '') + 'M';
+		} else if (absNum >= 1.0e+3) {
+		  return (num / 1.0e+3).toFixed(2).replace(/\.00$/, '') + 'K';
+		} else {
+		  return num.toString();
+		}
+	  }
 
 	private static isLeapYear(year: number) {
 		return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
@@ -131,7 +149,10 @@ abstract class helpers {
 				return this.getOneWeekOldStart();
 			case '1y':
 				return this.getOneYearOldDate();
-			case '1h':
+			case '3mo':
+				const today = new Date();
+				const ninetyDaysAgo = new Date(today.getTime() - (90 * 24 * 60 * 60 * 1000));
+				return ninetyDaysAgo;
 			default:
 				return this.getOneHourOldStart();
 		}
