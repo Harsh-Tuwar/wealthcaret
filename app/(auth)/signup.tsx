@@ -1,4 +1,4 @@
-import { appSignUp } from '@/stores/authStore';
+import { appSignUp } from '@/stores/useAuthStore';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ScrollView, Image } from 'react-native';

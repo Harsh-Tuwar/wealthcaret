@@ -9,13 +9,13 @@ import {
 } from 'react-native';
 import Constants from 'expo-constants';
 import MenuItem from '@/components/settings/MenuItem';
-import { appSignOut, AuthStore } from '@/stores/authStore';
 import { useRouter } from 'expo-router';
 import { log } from '@/utils/logger';
+import { appSignOut, useAuthStore } from '@/stores/useAuthStore';
 
 const SettingsScreen = () => {
 	const router = useRouter();
-	const user = AuthStore.useState((state) => state.user);
+	const user = useAuthStore((s) => s.user);
 	
 	if (!user) {
 		log.debug(`Couldn't find user! Returning to where you came from!`);

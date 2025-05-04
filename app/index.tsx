@@ -2,15 +2,15 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { useRootNavigationState } from 'expo-router';
 import { useRouter, useSegments } from 'expo-router';
-
-import { AuthStore } from '@/stores/authStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const Index = () => {
 	const router = useRouter();
 	const segments = useSegments();
 	const navigationState = useRootNavigationState();
 
-	const { initialized, isLoggedIn } = AuthStore.useState();
+	const initialized = useAuthStore((s) => s.initialized);
+	const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
 
 	React.useEffect(() => {
 		if (!navigationState?.key || !initialized) {
