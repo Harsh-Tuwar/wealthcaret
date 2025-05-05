@@ -17,11 +17,12 @@ const SettingsScreen = () => {
 	const router = useRouter();
 	const user = useAuthStore((s) => s.user);
 	
-	if (!user) {
-		log.debug(`Couldn't find user! Returning to where you came from!`);
-		router.back();
-		return null;
-	}
+	React.useEffect(() => {
+		if (!user) {
+			log.debug(`Couldn't find user! Returning to where you came from!`);
+			router.back();
+		}
+	}, [user]);
 
 	const onLogout = async () => {
 		const resp = await appSignOut();
@@ -42,9 +43,10 @@ const SettingsScreen = () => {
 
 			<ScrollView style={styles.body} contentContainerStyle={{ paddingBottom: 24 }}>
 				<Text style={styles.sectionTitle}>GENERAL</Text>
-				<MenuItem icon="person-outline" underline label="Account" onPress={() => { }} />
-				{/* <MenuItem icon="notifications-none" underline label="Notifications" onPress={() => { }} /> */}
-				{/* <MenuItem icon="card-giftcard" underline label="Coupons" onPress={() => { }} /> */}
+				<MenuItem icon="person-outline" underline label="Account" onPress={() => { 
+					router.push("/(hidden)/settings/account");
+					return;
+				}} />
 				<MenuItem icon="logout" label="Logout" underline={false} onPress={onLogout} />
 
 				<Text style={styles.sectionTitle}>FEEDBACK</Text>
