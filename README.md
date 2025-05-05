@@ -12,4 +12,10 @@ npx expo prebuild --clean
 
 # EAS local build android (to install the dev build to emulator)
 npx expo run:android
+
+# Sometimes this works too:-
+rm -rf node_modules
+npm cache clean
+npm install
+npm start -- --reset-cache
 ```
