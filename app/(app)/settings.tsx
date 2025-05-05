@@ -52,7 +52,10 @@ const SettingsScreen = () => {
 					router.push("/(hidden)/settings/bug-report-form");
 					return;
 				}} />
-				<MenuItem icon="send" label="Send feedback" underline={false} onPress={() => { }} />
+				<MenuItem icon="send" label="Send feedback" underline={false} onPress={() => { 
+					router.push("/(hidden)/settings/feedback-form");
+					return;
+				}} />
 
 				<View style={styles.versionBox}>
 					<Text style={styles.versionText}>App version {Constants.expoConfig?.version || '1.0.0'}</Text>
