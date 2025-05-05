@@ -1,45 +1,53 @@
-import { Store, registerInDevtools } from 'pullstate';
+import { create } from 'zustand';
 import * as firebaseAuth from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 import * as CollectionStrings from '../constants/Firebase';
 import { log } from '../utils/logger';
 import { FIREBASE_DB, auth } from '../firebase';
-import { createNewPortfolio } from './portfolioStore';
+import { createNewPortfolio } from './usePortofolioStore';
 import { PortfolioType } from '@/constants/types';
 
 type FirestoreUser = {
 	name: string,
 	createAt: Date,
 	uid: string
-}
+};
+
 interface AuthStore {
 	isLoggedIn: boolean;
 	initialized: boolean;
 	user: firebaseAuth.User | null;
 	fsUser: FirestoreUser | null;
+	setUser: (user: firebaseAuth.User | null) => void;
+	setLoggedIn: (status: boolean) => void;
+	setFsUser: (fsUser: FirestoreUser | null) => void;
 }
 
-export const AuthStore = new Store<AuthStore>({
+export const useAuthStore = create<AuthStore>((set) => ({
 	isLoggedIn: false,
 	initialized: false,
 	user: null,
-	fsUser: null
-});
+	fsUser: null,
+	setUser: (user) => set({ user }),
+	setLoggedIn: (status) => set({ isLoggedIn: status }),
+	setFsUser: (fsUser) => set({ fsUser }),
+}));
 
+// Firebase authentication state listener
 const unsub = firebaseAuth.onAuthStateChanged(auth, (user) => {
-	log.info("AUTHENTICATED USER:- ", user?.email ?? 'UNAUTHENTICATED');
-	AuthStore.update((store) => {
-		store.user = user;
-		store.isLoggedIn = user ? true : false;
-		store.initialized = true;
+	log.info('AUTHENTICATED USER:- ', user?.email ?? 'UNAUTHENTICATED');
+	useAuthStore.setState({
+		user,
+		isLoggedIn: !!user,
+		initialized: true, // ✅ Correct way to update
 	});
 });
 
 export const appSignIn = async (email: string, password: string) => {
 	try {
 		const resp = await firebaseAuth.signInWithEmailAndPassword(auth, email, password);
-		let fsUser: FirestoreUser;
+		let fsUser: FirestoreUser | null = null;
 		
 		if (resp.user) {
 			const docRef = doc(FIREBASE_DB, CollectionStrings.FIREBASE_USERS_COLLECTION, resp.user.uid);
@@ -51,11 +59,9 @@ export const appSignIn = async (email: string, password: string) => {
 			}
 		}
 
-		AuthStore.update((store) => {
-			store.user = resp.user;
-			store.isLoggedIn = resp.user ? true : false;
-			store.fsUser = fsUser;
-		});
+		useAuthStore.getState().setUser(resp.user);
+		useAuthStore.getState().setLoggedIn(!!resp.user);
+		useAuthStore.getState().setFsUser(fsUser);
 
 		return {
 			user: auth.currentUser
@@ -71,10 +77,10 @@ export const appSignOut = async () => {
 	try {
 		await firebaseAuth.signOut(auth);
 
-		AuthStore.update((store) => {
-			store.user = null;
-			store.isLoggedIn = false;
-		});
+		useAuthStore.getState().setUser(null);
+		useAuthStore.getState().setLoggedIn(false);
+
+		return {};
 	} catch (error) {
 		return {
 			error
@@ -95,10 +101,8 @@ export const appSignUp = async (email: string, password: string, displayName: st
 			await createNewPortfolio(`${displayName}'s Portfolio`, PortfolioType.MIXED, resp.user.uid, true);
 		}
 
-		AuthStore.update((store) => {
-			store.user = auth.currentUser;
-			store.isLoggedIn = true;
-		});
+		useAuthStore.getState().setUser(auth.currentUser);
+		useAuthStore.getState().setLoggedIn(true);
 
 		return { user: auth.currentUser };
 	} catch (error) {
@@ -106,6 +110,4 @@ export const appSignUp = async (email: string, password: string, displayName: st
 			error
 		};
 	}
-}
-
-registerInDevtools({ AuthStore });
+};

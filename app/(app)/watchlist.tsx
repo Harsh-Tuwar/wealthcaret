@@ -1,21 +1,20 @@
-import { AuthStore } from '@/stores/authStore';
-import { WatchlistStore, getAllWatchlistedItems } from '@/stores/watchlistStore';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useWatchlistStore } from '@/stores/useWatchlistStore';
 import { Link } from 'expo-router';
-import { useStoreState } from 'pullstate';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 const Watchlist = () => {
 	const [loading, setLoading] = useState(true);
-	const watchlistedItems = useStoreState(WatchlistStore, s => s.items);
-	const user = AuthStore.useState((state) => state.user);
+	const watchlistedItems = useWatchlistStore((s) => s.items);
+	const user = useAuthStore((s) => s.user);
 
 	React.useEffect(() => {
 		setLoading(true);
 
 		if (user) {
 			Promise.all([
-				getAllWatchlistedItems(user.uid)
+				useWatchlistStore().getAllWatchlistedItems(user.uid)
 			]).then(() => setLoading(false));
 		} else {
 			setLoading(false);

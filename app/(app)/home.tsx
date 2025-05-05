@@ -2,29 +2,31 @@ import { Button, StyleSheet, Text } from 'react-native';
 import { View } from '@/components/Themed';
 import { Link, useRouter } from 'expo-router';
 import React from 'react';
-import { PortfolioStore, getPortfolios } from '@/stores/portfolioStore';
-import { AuthStore } from '@/stores/authStore';
-import { useStoreState } from 'pullstate';
-import { getAllWatchlistedItems } from '@/stores/watchlistStore';
+import { useWatchlistStore } from '@/stores/useWatchlistStore';
 import { useQuery } from '@tanstack/react-query';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { getPortfolios, usePortfolioStore } from '@/stores/usePortofolioStore';
 
 export default function Home() {
   const router = useRouter();
-  const user = AuthStore.useState((state) => state.user);
-  const portfolios = useStoreState(PortfolioStore, s => s.portfolios);
-  const { isFetching, isLoading, isPending } = useQuery({
-    queryKey: ['portfolios-nd-watchlists'],
+  const user = useAuthStore((s) => s.user);
+  const portfolios = usePortfolioStore((s) => s.portfolios);
+  const { isLoading } = useQuery({
+    queryKey: ['portfolios', user?.uid],
     queryFn: async () => {
-      if (user) {
-        await getPortfolios(user.uid);
-        await getAllWatchlistedItems(user.uid);
-      }
+      if (!user?.uid) return [];
+      
+      const pfls = await getPortfolios(user.uid); // no state update here
+  
+      usePortfolioStore.getState().setPortfolios(pfls ?? []); // side-effect: manually update store
+      usePortfolioStore.getState().setForceFetch(false);
 
-      return null;
-    }
+      return pfls;
+    },
+    enabled: !!user?.uid
   });
-
-  if (isLoading || isFetching || isPending) {
+  
+  if (isLoading) {
     return <View style={styles.container}><Text style={styles.loadingText}>Loading...</Text></View>;
   }
 
