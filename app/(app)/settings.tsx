@@ -47,7 +47,10 @@ const SettingsScreen = () => {
 					router.push("/(hidden)/settings/account");
 					return;
 				}} />
-				<MenuItem icon="logout" label="Logout" underline={false} onPress={onLogout} />
+	
+				<MenuItem icon="article" label="Changelog" underline={false} onPress={() => {
+					router.push("/(hidden)/settings/changelog");
+				}} />
 
 				<Text style={styles.sectionTitle}>FEEDBACK</Text>
 				<MenuItem icon="report-problem" label="Report a bug" underline onPress={() => { 

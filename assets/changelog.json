@@ -1,0 +1,19 @@
+[
+	{
+	  "version": "1.2.0",
+	  "date": "2025-03-01",
+	  "changes": [
+		{ "type": "addition", "text": "Introduced changelog screen" },
+		{ "type": "bugfix", "text": "Fixed login crash on Android 14" }
+	  ]
+	},
+	{
+	  "version": "1.1.0",
+	  "date": "2025-01-15",
+	  "changes": [
+		{ "type": "update", "text": "Improved WebSocket stability" },
+		{ "type": "addition", "text": "Added dark mode" }
+	  ]
+	}
+  ]
+  
