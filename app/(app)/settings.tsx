@@ -17,11 +17,12 @@ const SettingsScreen = () => {
 	const router = useRouter();
 	const user = useAuthStore((s) => s.user);
 	
-	if (!user) {
-		log.debug(`Couldn't find user! Returning to where you came from!`);
-		router.back();
-		return null;
-	}
+	React.useEffect(() => {
+		if (!user) {
+			log.debug(`Couldn't find user! Returning to where you came from!`);
+			router.back();
+		}
+	}, [user]);
 
 	const onLogout = async () => {
 		const resp = await appSignOut();
@@ -37,19 +38,29 @@ const SettingsScreen = () => {
 	return (
 		<SafeAreaView style={styles.safeArea}>
 			<View style={styles.container}>
-				<Text style={styles.heading}>Settings</Text>
+				<Text style={styles.header}>Settings</Text>
 			</View>
 
 			<ScrollView style={styles.body} contentContainerStyle={{ paddingBottom: 24 }}>
 				<Text style={styles.sectionTitle}>GENERAL</Text>
-				<MenuItem icon="person-outline" underline label="Account" onPress={() => { }} />
-				<MenuItem icon="notifications-none" underline label="Notifications" onPress={() => { }} />
-				<MenuItem icon="card-giftcard" underline label="Coupons" onPress={() => { }} />
-				<MenuItem icon="logout" label="Logout" underline={false} onPress={onLogout} />
+				<MenuItem icon="person-outline" underline label="Account" onPress={() => { 
+					router.push("/(hidden)/settings/account");
+					return;
+				}} />
+	
+				<MenuItem icon="article" label="Changelog" underline={false} onPress={() => {
+					router.push("/(hidden)/settings/changelog");
+				}} />
 
 				<Text style={styles.sectionTitle}>FEEDBACK</Text>
-				<MenuItem icon="report-problem" label="Report a bug" underline onPress={() => { }} />
-				<MenuItem icon="send" label="Send feedback" underline={false} onPress={() => { }} />
+				<MenuItem icon="report-problem" label="Report a bug" underline onPress={() => { 
+					router.push("/(hidden)/settings/bug-report-form");
+					return;
+				}} />
+				<MenuItem icon="send" label="Send feedback" underline={false} onPress={() => { 
+					router.push("/(hidden)/settings/feedback-form");
+					return;
+				}} />
 
 				<View style={styles.versionBox}>
 					<Text style={styles.versionText}>App version {Constants.expoConfig?.version || '1.0.0'}</Text>
@@ -76,15 +87,13 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 	},
 	header: {
-		backgroundColor: '#FDF2F8',
-		paddingTop: 16,
-		paddingBottom: 12,
-		paddingHorizontal: 20,
-		flexDirection: 'row',
-		alignItems: 'center',
-		borderBottomColor: '#E5E7EB',
-		borderBottomWidth: 1,
-	},
+		fontSize: 22,
+		fontWeight: '700',
+		color: '#1C1C1E',
+		marginBottom: 18,
+		textAlign: 'center',
+		letterSpacing: 0.1,
+	  },
 	headerTitle: {
 		fontSize: 20,
 		fontWeight: '600',

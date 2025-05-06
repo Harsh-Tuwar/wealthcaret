@@ -5,24 +5,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import * as CollectionStrings from '../constants/Firebase';
 import { log } from '../utils/logger';
 import { FIREBASE_DB, auth } from '../firebase';
-import { createNewPortfolio } from './usePortofolioStore';
-import { PortfolioType } from '@/constants/types';
-
-type FirestoreUser = {
-	name: string,
-	createAt: Date,
-	uid: string
-};
-
-interface AuthStore {
-	isLoggedIn: boolean;
-	initialized: boolean;
-	user: firebaseAuth.User | null;
-	fsUser: FirestoreUser | null;
-	setUser: (user: firebaseAuth.User | null) => void;
-	setLoggedIn: (status: boolean) => void;
-	setFsUser: (fsUser: FirestoreUser | null) => void;
-}
+import { AuthStore, FirestoreUser } from '@/types/types';
 
 export const useAuthStore = create<AuthStore>((set) => ({
 	isLoggedIn: false,
@@ -35,11 +18,25 @@ export const useAuthStore = create<AuthStore>((set) => ({
 }));
 
 // Firebase authentication state listener
-const unsub = firebaseAuth.onAuthStateChanged(auth, (user) => {
+const unsub = firebaseAuth.onAuthStateChanged(auth, async (user) => {
 	log.info('AUTHENTICATED USER:- ', user?.email ?? 'UNAUTHENTICATED');
+	
+	let fsUser: FirestoreUser | null = null;
+
+	if (user) {
+		const docRef = doc(FIREBASE_DB, CollectionStrings.FIREBASE_USERS_COLLECTION, user.uid);
+		const docSnap = await getDoc(docRef);
+
+		if (docSnap.exists()) {
+			fsUser = docSnap.data() as FirestoreUser;
+			fsUser.uid = docSnap.id;
+		}
+	}
+
 	useAuthStore.setState({
 		user,
 		isLoggedIn: !!user,
+		fsUser,
 		initialized: true, // ✅ Correct way to update
 	});
 });
@@ -58,6 +55,8 @@ export const appSignIn = async (email: string, password: string) => {
 				fsUser.uid = docSnap.id;
 			}
 		}
+
+		console.log(fsUser);
 
 		useAuthStore.getState().setUser(resp.user);
 		useAuthStore.getState().setLoggedIn(!!resp.user);
@@ -92,17 +91,27 @@ export const appSignUp = async (email: string, password: string, displayName: st
 	try {
 		const resp = await firebaseAuth.createUserWithEmailAndPassword(auth, email, password);
 
+		let fsUser: FirestoreUser = {
+			name: displayName,
+			phone: resp.user.phoneNumber,
+			bio: "",
+			dob: "",
+			uid: "",
+			createAt: new Date().toISOString(),
+		};
+
 		if (resp.user) {
 			await firebaseAuth.updateProfile(resp.user, { displayName });
-			await setDoc(doc(FIREBASE_DB, CollectionStrings.FIREBASE_USERS_COLLECTION, resp.user.uid), {
-				name: displayName,
-				createAt: new Date()
-			});
-			await createNewPortfolio(`${displayName}'s Portfolio`, PortfolioType.MIXED, resp.user.uid, true);
+
+			fsUser.email = resp.user.email ?? 'n/a';
+			fsUser.uid = resp.user.uid;
+
+			await setDoc(doc(FIREBASE_DB, CollectionStrings.FIREBASE_USERS_COLLECTION, resp.user.uid), fsUser);
 		}
 
 		useAuthStore.getState().setUser(auth.currentUser);
 		useAuthStore.getState().setLoggedIn(true);
+		useAuthStore.getState().setFsUser(fsUser);
 
 		return { user: auth.currentUser };
 	} catch (error) {

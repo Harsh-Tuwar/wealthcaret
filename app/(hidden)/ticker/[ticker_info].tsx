@@ -20,7 +20,6 @@ const TickerInfoScreen = () => {
   const [refreshing, setRefreshing] = React.useState(false);
   const [lastFetched, setLastFetched] = React.useState<Date | null>(null);
 
-
   const { ticker_info: symbol } = useLocalSearchParams();
 
   const { data, isLoading, error, refetch } = useQuery({

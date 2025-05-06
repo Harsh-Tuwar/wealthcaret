@@ -11,7 +11,7 @@ export default function Home() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const portfolios = usePortfolioStore((s) => s.portfolios);
-  const { isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['portfolios', user?.uid],
     queryFn: async () => {
       if (!user?.uid) return [];
