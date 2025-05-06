@@ -11,7 +11,8 @@
     "dev": "npx expo start --dev-client",
     "clean": "rm -rf node_modules package-lock.json yarn.lock && yarn",
     "start:server": "cd server && yarn dev",
-    "build:dev": "eas build -p android --profile development"
+    "build:dev": "eas build -p android --profile development",
+    "build:prev": "eas build -p android --profile preview"
   },
   "jest": {
     "preset": "jest-expo"
@@ -20,7 +21,7 @@
     "@expo/vector-icons": "^14.0.0",
     "@gorhom/bottom-sheet": "^4",
     "@react-native-async-storage/async-storage": "1.21.0",
-    "@react-native-community/datetimepicker": "^8.3.0",
+    "@react-native-community/datetimepicker": "7.7.0",
     "@react-native-picker/picker": "2.6.1",
     "@react-navigation/native": "^6.0.2",
     "@shopify/react-native-skia": "0.1.221",
