@@ -109,14 +109,6 @@ export const useWatchlistStore = create<WatchlistState>((set, get) => ({
         return;
       }
 
-      // const docRef = doc(
-      //   FIREBASE_DB,
-      //   FIREBASE_WATCHLIST_COLLECTION, // e.g., "watchlists"
-      //   userId,
-      //   FIREBASE_WATCHLIST_ITEM_COLLECTION, // e.g., "items"
-      //   symbol
-      // );
-
       const collectionRef = collection(
         FIREBASE_DB,
         FIREBASE_WATCHLIST_COLLECTION,
