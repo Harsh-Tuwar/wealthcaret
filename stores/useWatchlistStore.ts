@@ -3,15 +3,16 @@
 import { create } from 'zustand';
 import { FIREBASE_DB } from '@/firebase';
 import { log } from '@/utils/logger';
-import { addDoc, collection, deleteDoc, doc, getDocs } from 'firebase/firestore';
-import { FIREBASE_USERS_COLLECTION, FIREBASE_WATCHLIST_COLLECTION } from '@/constants/Firebase';
+import { collection, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
+import { FIREBASE_WATCHLIST_COLLECTION, FIREBASE_WATCHLIST_ITEM_COLLECTION } from '@/constants/Firebase';
+import { useAuthStore } from './useAuthStore';
 
 export interface WatchlistItem {
   symbol: string;
   createdAt: string;
   id: string;
-  shortName: string;
-  longName: string;
+  name: string;
+  exchange: string
 }
 
 interface WatchlistState {
@@ -19,8 +20,7 @@ interface WatchlistState {
   lastFetched: Date | null;
   forceFetch: boolean;
 
-  addToWatchlist: (symbol: string, shortName: string, longName: string, userId: string) => Promise<void>;
-  removeFromWatchlist: (symbol: string, userId: string) => Promise<void>;
+  toggleWatchlistItem: (symbol: string, name: string, exchange: string, userId: string) => Promise<boolean>;
   getAllWatchlistedItems: (userId: string) => Promise<void>;
 }
 
@@ -29,77 +29,71 @@ export const useWatchlistStore = create<WatchlistState>((set, get) => ({
   lastFetched: null,
   forceFetch: false,
 
-  addToWatchlist: async (symbol, shortName, longName, userId) => {
-    try {
-      log.debug(`Adding ${symbol} to the watchlist for user: ${userId}`);
-      const itemCreationDate = new Date();
-
-      const newDocData = await addDoc(collection(
-        FIREBASE_DB,
-        FIREBASE_USERS_COLLECTION,
-        userId,
-        FIREBASE_WATCHLIST_COLLECTION
-      ), {
-        symbol,
-        createdAt: itemCreationDate,
-        shortName,
-        longName,
-      });
-
-      set((state) => ({
-        items: [
-          ...state.items,
-          {
-            symbol,
-            createdAt: itemCreationDate.toString(),
-            id: newDocData.id,
-            shortName,
-            longName,
-          },
-        ],
-        forceFetch: true,
-      }));
-
-      log.debug(`${symbol} added to the watchlist for user: ${userId}`);
-    } catch (error) {
-      log.debug(`Error adding ${symbol} to the watchlist for user: ${userId}`);
-      log.error(error);
-      throw error;
+  toggleWatchlistItem: async (symbol, name, exchange, userId) => {
+    if (!userId) {
+      log.debug('Cannot toggle symbol in watchlist: user ID is undefined.');
+      return false;
     }
-  },
 
-  removeFromWatchlist: async (symbol, userId) => {
+    if (!symbol || !name || !exchange) {
+      log.debug('Missing required fields for toggling watchlist item.');
+      return false;
+    }
+
+    const { items } = get();
+    const existsInWatchlist = items.some((item) => item.symbol === symbol);
+
+    const docRef = doc(
+      FIREBASE_DB,
+      FIREBASE_WATCHLIST_COLLECTION, // e.g., "watchlists"
+      userId,
+      FIREBASE_WATCHLIST_ITEM_COLLECTION, // e.g., "items"
+      symbol
+    );
+
     try {
-      log.debug(`Removing ${symbol} from the watchlist for user: ${userId}`);
+      if (existsInWatchlist) {
+        log.debug(`Removing ${symbol} from watchlist for user: ${userId}`);
+        await deleteDoc(docRef);
 
-      const { items } = get();
-      const itemToRemove = items.find((item) => item.symbol === symbol);
+        set((state) => ({
+          items: state.items.filter((item) => item.symbol !== symbol),
+          forceFetch: true,
+        }));
 
-      if (!itemToRemove) {
-        log.debug(`Trying to remove ${symbol}, but it doesn't exist in the memory! Skipping.`);
-        return;
+        log.debug(`${symbol} successfully removed from watchlist for user: ${userId}`);
+        return true;
+      } else {
+        log.debug(`Adding ${symbol} to watchlist for user: ${userId}`);
+        const createdAt = new Date().toISOString();
+
+        await setDoc(docRef, {
+          symbol,
+          name,
+          exchange,
+          createdAt,
+        });
+
+        set((state) => ({
+          items: [
+            ...state.items,
+            {
+              symbol,
+              name,
+              exchange,
+              createdAt,
+              id: symbol, // symbol used as document ID
+            },
+          ],
+          forceFetch: true,
+        }));
+
+        log.debug(`${symbol} successfully added to watchlist for user: ${userId}`);
+        return true;
       }
-
-      const docRef = doc(
-        FIREBASE_DB,
-        FIREBASE_USERS_COLLECTION,
-        userId,
-        FIREBASE_WATCHLIST_COLLECTION,
-        itemToRemove.id
-      );
-
-      await deleteDoc(docRef);
-
-      set((state) => ({
-        items: state.items.filter((item) => item.symbol !== symbol),
-        forceFetch: true,
-      }));
-
-      log.debug(`${symbol} deleted from the watchlist for user: ${userId}`);
     } catch (error) {
-      log.debug(`Error deleting ${symbol} from the watchlist for user: ${userId}`);
-      log.error(error);
-      throw error;
+      log.error(`Error toggling ${symbol} in watchlist for user: ${userId}`, error);
+      return false;
     }
   },
 
@@ -117,22 +111,24 @@ export const useWatchlistStore = create<WatchlistState>((set, get) => ({
 
       const collectionRef = collection(
         FIREBASE_DB,
-        FIREBASE_USERS_COLLECTION,
+        FIREBASE_WATCHLIST_COLLECTION,
         userId,
-        FIREBASE_WATCHLIST_COLLECTION
+        FIREBASE_WATCHLIST_ITEM_COLLECTION,
       );
 
       const querySnapshot = await getDocs(collectionRef);
 
       const watchlistedItems: WatchlistItem[] = [];
+
       querySnapshot.forEach((docSnap) => {
         const data = docSnap.data();
+
         watchlistedItems.push({
           id: docSnap.id,
           symbol: data.symbol,
           createdAt: data.createdAt.toString(),
-          shortName: data.shortName,
-          longName: data.longName,
+          name: data.name,
+          exchange: data.exchange,
         });
       });
 

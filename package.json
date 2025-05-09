@@ -11,8 +11,7 @@
     "dev": "npx expo start --dev-client",
     "clean": "rm -rf node_modules package-lock.json yarn.lock && yarn",
     "start:server": "cd server && yarn dev",
-    "build:dev": "eas build -p android --profile development",
-    "build:prev": "eas build -p android --profile preview"
+    "build:dev": "eas build -p android --profile development"
   },
   "jest": {
     "preset": "jest-expo"

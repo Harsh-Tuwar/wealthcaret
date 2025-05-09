@@ -1,19 +1,44 @@
 [
 	{
-	  "version": "1.2.0",
-	  "date": "2025-03-01",
-	  "changes": [
-		{ "type": "addition", "text": "Introduced changelog screen" },
-		{ "type": "bugfix", "text": "Fixed login crash on Android 14" }
-	  ]
-	},
-	{
-	  "version": "1.1.0",
-	  "date": "2025-01-15",
-	  "changes": [
-		{ "type": "update", "text": "Improved WebSocket stability" },
-		{ "type": "addition", "text": "Added dark mode" }
-	  ]
+		"version": "0.0.1",
+		"date": "2025-05-09",
+		"changes": [
+			{
+				"type": "update",
+				"text": "Redesigned home screen layout for better usability"
+			},
+			{
+				"type": "update",
+				"text": "Improved search ticker screen UI and UX"
+			},
+			{
+				"type": "update",
+				"text": "Refreshed settings screen with a cleaner design"
+			},
+			{
+				"type": "update",
+				"text": "Updated ticker info screen visuals and layout"
+			},
+			{
+				"type": "addition",
+				"text": "Introduced common title component across all screens"
+			},
+			{
+				"type": "addition",
+				"text": "Enabled adding tickers to watchlists"
+			},
+			{
+				"type": "addition",
+				"text": "Added filter to display only equity tickers on the search screen"
+			},
+			{
+				"type": "bugfix",
+				"text": "Corrected fair value price calculation logic"
+			},
+			{
+				"type": "fix",
+				"text": "Added additional check for PB ratio to prevent invalid values"
+			}
+		]
 	}
-  ]
-  
+]

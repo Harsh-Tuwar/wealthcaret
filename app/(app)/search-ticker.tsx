@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useFocusEffect } from 'expo-router';
 import network from '../../utils/network';
 import { PickerQuote, SearchPickerResults } from '@/types/types';
+import PageHeader from '@/components/ui/PageHeader';
 
 const SearchTickers = () => {
   const [searchValue, setSearchValue] = useState('');
@@ -48,9 +49,10 @@ const SearchTickers = () => {
     try {
       const results = (await network.get(
         `/picker/search?query=${searchValue}`
-      )) as SearchPickerResults;
+      )) as PickerQuote[];
+
       setSearchResults(
-        results.quotes?.filter((res) => res.isYahooFinance) || []
+        results
       );
     } catch (e) {
       console.error(e);
@@ -60,9 +62,12 @@ const SearchTickers = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <PageHeader
+        title='Search Stocks'
+      />
+
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
-          <Text style={styles.header}>Search Stocks</Text>
 
           <View style={styles.searchBox}>
             <TextInput
@@ -102,6 +107,7 @@ const SearchTickers = () => {
                         ticker_info: item.symbol,
                         shortName: item.shortname,
                         longName: item.longname,
+                        exchange: item.exchange,
                         ticker_sector: item.sector,
                       },
                     }}
@@ -134,13 +140,14 @@ const SearchTickers = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
-    paddingHorizontal: 0,
+    backgroundColor: '#fefefe',
+    marginTop: -24,
   },
   container: {
     flex: 1,
-    paddingTop: 24,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
+		paddingTop: 15,
+		paddingBottom: 40,
   },
   header: {
     fontSize: 22,

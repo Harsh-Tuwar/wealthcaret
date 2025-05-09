@@ -17,7 +17,7 @@ app.use(morgan(':method :url :response-time'));
 app.use('/api', routes);
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Express + TypeScript Server");
+  res.send("Welcome to Wealthcaret API. Please download the app from the Google Playstore or Appstore to use it.");
 });
 
 /* Start the Express app and listen for incoming requests on the specified port */

@@ -29,7 +29,7 @@ export default abstract class helpers {
 			pegRatio: this.calculatePEGRatio(peRatio, epsGrowthRate),
 			lynchRatio,
 			grahamGrowthNumber: this.calculateGrahamGrowthNumber(eps, epsGrowthRate),
-			fairValuePrice: pricePerShare * lynchRatio,
+			fairValuePrice: eps * epsGrowthRate,
 			returnOnEquity: returnOnEquity
 		};
 
@@ -65,7 +65,7 @@ export default abstract class helpers {
 			return 0;
 		}
 
-		return eps * (8.5 + 2 * expectedGrowthRate);
+		return eps * (8.5 + (2 * expectedGrowthRate));
 	}
 
 	private static calculatePriceToBookRatio(pricePerShare: number, bookValuePerShare: number) {
@@ -133,7 +133,14 @@ export default abstract class helpers {
 		}
 
 		// Price to Book Ratio
-		if (priceToBookRatio < 1) {
+		if (priceToBookRatio === 0) {
+			analysis.push({
+				metric: 'Price to Book Ratio',
+				value: priceToBookRatio,
+				verdict: AnalysisSummaryVerdict.UNRELIABLE,
+				interpretation: 'Unreliable - Book value per share is empty!',
+			});
+		} else if (priceToBookRatio < 1) {
 			analysis.push({
 				metric: 'Price to Book Ratio',
 				value: priceToBookRatio,
