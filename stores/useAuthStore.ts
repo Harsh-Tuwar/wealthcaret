@@ -6,6 +6,7 @@ import * as CollectionStrings from '../constants/Firebase';
 import { log } from '../utils/logger';
 import { FIREBASE_DB, auth } from '../firebase';
 import { AuthStore, FirestoreUser } from '@/types/types';
+import { useWatchlistStore } from './useWatchlistStore';
 
 export const useAuthStore = create<AuthStore>((set) => ({
 	isLoggedIn: false,
@@ -30,6 +31,8 @@ const unsub = firebaseAuth.onAuthStateChanged(auth, async (user) => {
 		if (docSnap.exists()) {
 			fsUser = docSnap.data() as FirestoreUser;
 			fsUser.uid = docSnap.id;
+
+			await useWatchlistStore.getState().getAllWatchlistedItems(fsUser?.uid);
 		}
 	}
 
@@ -55,8 +58,6 @@ export const appSignIn = async (email: string, password: string) => {
 				fsUser.uid = docSnap.id;
 			}
 		}
-
-		console.log(fsUser);
 
 		useAuthStore.getState().setUser(resp.user);
 		useAuthStore.getState().setLoggedIn(!!resp.user);

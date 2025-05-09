@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-	View,
 	Text,
 	TextInput,
 	TouchableOpacity,
@@ -10,9 +9,9 @@ import {
 	Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { sendFeedbackRequest } from '@/stores/useSettingStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+import PageHeader from '@/components/ui/PageHeader';
 
 const FeedbackForm = () => {
 	const [title, setTitle] = useState('');
@@ -40,13 +39,15 @@ const FeedbackForm = () => {
 
 	return (
 		<SafeAreaView style={styles.safeArea}>
-			<TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-				<Ionicons name="arrow-back" size={24} color="#333" />
-			</TouchableOpacity>
+			<PageHeader
+				title='Feedback or Feature Request'
+				leftButton={{
+					icon: 'arrow-back',
+					onPress: () => router.back()
+				}}
+			/>
 
 			<ScrollView style={styles.body} contentContainerStyle={{ paddingBottom: 40 }}>
-				<Text style={styles.header}>Feedback or Feature Request</Text>
-
 				<Text style={styles.label}>Title</Text>
 				<TextInput
 					style={styles.input}
@@ -86,25 +87,9 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: '#fefefe',
 	},
-	backButton: {
-		position: 'absolute',
-		top: 20,
-		left: 20,
-		padding: 10,
-		zIndex: 10,
-	},
 	body: {
-		padding: 20,
-		paddingTop: 40,
+		paddingHorizontal: 20,
 		paddingBottom: 40,
-	},
-	header: {
-		fontSize: 22,
-		fontWeight: '700',
-		color: '#1C1C1E',
-		marginBottom: 18,
-		textAlign: 'center',
-		letterSpacing: 0.1,
 	},
 	label: {
 		fontSize: 14,

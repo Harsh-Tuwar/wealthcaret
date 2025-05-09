@@ -5,13 +5,13 @@ import {
 	StyleSheet,
 	ScrollView,
 	SafeAreaView,
-	Alert,
 } from 'react-native';
 import Constants from 'expo-constants';
 import MenuItem from '@/components/settings/MenuItem';
 import { useRouter } from 'expo-router';
 import { log } from '@/utils/logger';
-import { appSignOut, useAuthStore } from '@/stores/useAuthStore';
+import { useAuthStore } from '@/stores/useAuthStore';
+import PageHeader from '@/components/ui/PageHeader';
 
 const SettingsScreen = () => {
 	const router = useRouter();
@@ -24,22 +24,9 @@ const SettingsScreen = () => {
 		}
 	}, [user]);
 
-	const onLogout = async () => {
-		const resp = await appSignOut();
-		
-		if (!resp?.error) {
-			router.replace('/(auth)/login');
-		} else {
-			console.log(resp?.error);
-			Alert.alert('Logout error!', (resp?.error as any)?.message);
-		}
-	}
-
 	return (
 		<SafeAreaView style={styles.safeArea}>
-			<View style={styles.container}>
-				<Text style={styles.header}>Settings</Text>
-			</View>
+			<PageHeader title="Settings"  />
 
 			<ScrollView style={styles.body} contentContainerStyle={{ paddingBottom: 24 }}>
 				<Text style={styles.sectionTitle}>GENERAL</Text>

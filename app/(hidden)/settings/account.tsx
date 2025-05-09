@@ -10,11 +10,11 @@ import {
 	Alert,
 	Platform,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { appSignOut, useAuthStore } from '@/stores/useAuthStore';
 import { updateAccountInfo } from '@/stores/useSettingStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import PageHeader from '@/components/ui/PageHeader';
 
 const AccountProfileScreen = () => {
 	const user = useAuthStore((s) => s.fsUser);
@@ -80,13 +80,17 @@ const AccountProfileScreen = () => {
 
 	return (
 		<SafeAreaView style={styles.safeArea}>
-			<TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-				<Ionicons name="arrow-back" size={24} color="#333" />
-			</TouchableOpacity>
+			<PageHeader
+				title="Your Profile"
+				leftButton={{
+					icon: 'arrow-back',
+					onPress: () => {
+						router.back();
+					},
+				}}
+			/>
 
 			<ScrollView style={styles.body} contentContainerStyle={{ paddingBottom: 40 }}>
-				<Text style={styles.header}>Your Profile</Text>
-
 				<Text style={styles.label}>Email (read-only)</Text>
 				<TextInput
 					style={[styles.input, styles.disabledInput]}
@@ -158,16 +162,8 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: '#fefefe',
 	},
-	backButton: {
-		position: 'absolute',
-		top: 20,
-		left: 20,
-		padding: 10,
-		zIndex: 10,
-	},
 	body: {
-		padding: 20,
-		paddingTop: 40,
+		paddingHorizontal: 20,
 	},
 	header: {
 		fontSize: 22,

@@ -4,11 +4,11 @@ import {
 	Text,
 	ScrollView,
 	StyleSheet,
-	TouchableOpacity
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import changelog from '@/assets/changelog.json';
+import PageHeader from '@/components/ui/PageHeader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type ChangeItem = {
 	text: string;
@@ -46,19 +46,22 @@ const ChangelogScreen = () => {
 	};
 
 	return (
-		<View style={styles.container}>
-			<View style={styles.header}>
-				<TouchableOpacity onPress={() => router.back()}>
-					<Ionicons name="arrow-back" size={24} color="#1C1C1E" />
-				</TouchableOpacity>
-				<Text style={styles.headerTitle}>Changelog</Text>
-			</View>
+		<SafeAreaView style={styles.safeArea}>
+			<PageHeader
+				title='Changelog'
+				leftButton={{
+					icon: 'arrow-back',
+					onPress: () => router.back()
+				}}
+			/>
 
-			<ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+			<ScrollView style={styles.body} contentContainerStyle={{ paddingBottom: 40 }}>
 				{entries.map((entry, idx) => (
 					<View key={idx} style={styles.entry}>
-						<Text style={styles.version}>v{entry.version}</Text>
-						<Text style={styles.date}>{entry.date}</Text>
+						<View style={styles.headerRow}>
+							<Text style={styles.version}>🏷️ v{entry.version}</Text>
+							<Text style={styles.date}>{entry.date}</Text>
+						</View>
 						{entry.changes.map((change, i) => (
 							<View key={i} style={styles.changeRow}>
 								<View
@@ -75,33 +78,32 @@ const ChangelogScreen = () => {
 					</View>
 				))}
 			</ScrollView>
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
+	safeArea: {
 		flex: 1,
-		backgroundColor: '#fff',
+		marginTop: -24,
+		backgroundColor: '#fefefe',
+	},
+	body: {
 		paddingHorizontal: 20,
-		paddingTop: 40,
+		paddingTop: 15,
+		backgroundColor: '#FFFFFF',
 	},
-	header: {
+	headerRow: {
 		flexDirection: 'row',
+		justifyContent: 'space-between',
 		alignItems: 'center',
-		marginBottom: 20,
-	},
-	headerTitle: {
-		fontSize: 20,
-		fontWeight: '700',
-		marginLeft: 12,
-		color: '#1C1C1E',
+		marginBottom: 12,
 	},
 	entry: {
-		marginBottom: 30,
+		marginBottom: 20,
 		borderBottomWidth: 1,
 		borderBottomColor: '#E5E7EB',
-		paddingBottom: 16,
+		paddingBottom:4,
 	},
 	version: {
 		fontSize: 18,
@@ -109,9 +111,8 @@ const styles = StyleSheet.create({
 		color: '#111827',
 	},
 	date: {
-		fontSize: 14,
+		fontSize: 12,
 		color: '#6B7280',
-		marginBottom: 12,
 	},
 	changeRow: {
 		flexDirection: 'row',
