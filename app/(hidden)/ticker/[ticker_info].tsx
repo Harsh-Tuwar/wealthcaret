@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RefreshControl, ScrollView } from 'react-native-gesture-handler';
@@ -9,6 +9,8 @@ import network from '@/utils/network';
 import helpers from '@/utils/helpers';
 import CalculationCard from '@/components/tickerInfo/CalculationCard';
 import { DetailedPickerData } from '@/types/types';
+import { useWatchlistStore } from '@/stores/useWatchlistStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const fetchPickerData = async (symbol: string) => {
   const data = await network.get(`/picker/data/detailed?picker=${symbol}`) as Promise<DetailedPickerData>;
@@ -19,9 +21,10 @@ const TickerInfoScreen = () => {
   const router = useRouter();
   const [refreshing, setRefreshing] = React.useState(false);
   const [lastFetched, setLastFetched] = React.useState<Date | null>(null);
+  const watchlistStore = useWatchlistStore();
+  const user = useAuthStore((s) => s.fsUser);
 
-
-  const { ticker_info: symbol } = useLocalSearchParams();
+  const { ticker_info: symbol, exchange } = useLocalSearchParams();
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['pickerData', symbol],
@@ -86,11 +89,27 @@ const TickerInfoScreen = () => {
     router.back();
   };
 
+  const addToWatchlist = () => {
+    const res = watchlistStore.toggleWatchlistItem(symbol as string, name, exchange as string, user?.uid as string);
+
+    if (!res) {
+      Alert.alert('There seem to be some issue adding this to watchlist. Try again later!');
+      return;
+    } else {
+      Alert.alert(`${symbol} added to watchlist.`);
+    }
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
         <Ionicons name="arrow-back" size={24} color="#333" />
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.starButton} onPress={addToWatchlist}>
+        <Ionicons name={watchlistStore.items.findIndex((i) => i.id === symbol) === -1 ? "star-outline" : 'star'} size={24} color="#333" />
+      </TouchableOpacity>
+
       <ScrollView contentContainerStyle={styles.container} refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }>
@@ -148,6 +167,13 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 40,
     paddingBottom: 40,
+  },
+  starButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    padding: 10,
+    zIndex: 1,
   },
   loader: {
     marginTop: 20,

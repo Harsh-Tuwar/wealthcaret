@@ -11,7 +11,7 @@ import {
   Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { appSignIn } from '@/stores/authStore';
+import { appSignIn } from '@/stores/useAuthStore';
 
 const Login = () => {
   const [email, setEmail] = React.useState('');

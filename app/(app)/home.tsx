@@ -1,139 +1,181 @@
-import { Button, StyleSheet, Text } from 'react-native';
-import { View } from '@/components/Themed';
-import { Link, useRouter } from 'expo-router';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useWatchlistStore } from '@/stores/useWatchlistStore';
 import React from 'react';
-import { PortfolioStore, getPortfolios } from '@/stores/portfolioStore';
-import { AuthStore } from '@/stores/authStore';
-import { useStoreState } from 'pullstate';
-import { getAllWatchlistedItems } from '@/stores/watchlistStore';
-import { useQuery } from '@tanstack/react-query';
+import {
+  SafeAreaView,
+  ScrollView,
+  View,
+  Text,
+  StyleSheet,
+  Image,
+} from 'react-native';
+
+const quotes = [
+  {
+    author: 'Warren Buffett',
+    quote: "The stock market is a device for transferring money from the impatient to the patient.",
+    authorImage: 'https://placekitten.com/40/40',
+  },
+  {
+    author: 'Peter Lynch',
+    quote: "Know what you own, and know why you own it.",
+    authorImage: 'https://placekitten.com/40/40',
+  },
+  {
+    author: 'Charlie Munger',
+    quote: "The best thing a human being can do is to help another human being know more.",
+    authorImage: 'https://placekitten.com/40/40',
+  },
+  {
+    author: 'Benjamin Graham',
+    quote: "The individual investor should act consistently as an investor and not as a speculator.",
+    authorImage: 'https://placekitten.com/40/40',
+  },
+  {
+    author: 'John Templeton',
+    quote: "The four most dangerous words in investing are: 'This time it's different.'",
+    authorImage: 'https://placekitten.com/40/40',
+  },
+];
+
+const COLORS = ['#FF6B6B', '#6BCB77', '#4D96FF', '#FFD93D', '#FF6F91', '#845EC2'];
+
+const getRandomColor = () => COLORS[Math.floor(Math.random() * COLORS.length)];
+const getRandomQuote = () => quotes[Math.floor(Math.random() * quotes.length)];
 
 export default function Home() {
-  const router = useRouter();
-  const user = AuthStore.useState((state) => state.user);
-  const portfolios = useStoreState(PortfolioStore, s => s.portfolios);
-  const { isFetching, isLoading, isPending } = useQuery({
-    queryKey: ['portfolios-nd-watchlists'],
-    queryFn: async () => {
-      if (user) {
-        await getPortfolios(user.uid);
-        await getAllWatchlistedItems(user.uid);
-      }
-
-      return null;
-    }
-  });
-
-  if (isLoading || isFetching || isPending) {
-    return <View style={styles.container}><Text style={styles.loadingText}>Loading...</Text></View>;
-  }
+  const user = useAuthStore((s) => s.user);
+  const randomQuote = getRandomQuote();
+  const watchlists = useWatchlistStore((s) => s.items);
 
   return (
-    <View style={styles.container}>
-      {/* Welcome Section */}
-      <Text style={styles.welcomeText}>Welcome, {user?.displayName || 'User'}!</Text>
-      
-      {/* Portfolio Section */}
-      {portfolios.length === 0 ? (
-        // No Portfolios
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>You don't have any portfolios yet.</Text>
-          <Button
-            onPress={() => router.push("/(hidden)/portfolio/create")}
-            title="Create a Portfolio"
-            color="#0B74D4" // Blue accent color
-          />
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Text style={styles.greeting}>Hi, {user?.displayName}! 👋</Text>
         </View>
-      ) : (
-        // Existing Portfolios
-        <View style={styles.portfolioList}>
-          <Text style={styles.listTitle}>Your Portfolios</Text>
-          {portfolios.map((pItem) => (
-            <View key={pItem.id} style={styles.portfolioCard}>
-              <Link
-                push
-                href={{
-                  pathname: "/(hidden)/portfolio/[id]",
-                  params: { id: pItem.id }
-                }}
-              >
-                <Text style={styles.portfolioTitle}>{pItem.title}</Text>
-                <Text style={styles.portfolioSubtitle}>Tap to view</Text>
-              </Link>
+
+        <View style={styles.quoteContainer}>
+          <Text style={styles.quoteText}>"{randomQuote.quote}"</Text>
+          <View style={styles.authorContainer}>
+            <Image source={{ uri: randomQuote.authorImage }} style={styles.authorImage} />
+            <Text style={styles.authorText}>- {randomQuote.author}</Text>
+          </View>
+        </View>
+
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>Your Watchlist</Text>
+        </View>
+
+        {watchlists.map((item) => (
+          <View key={item.symbol} style={[styles.stockItem, { borderRightColor: getRandomColor() }]}>
+            <Text style={styles.ticker}>{item.symbol}</Text>
+            <View style={styles.stockInfo}>
+              <Text style={styles.stockName}>{item.name}</Text>
+              <Text style={styles.exchange}>{item.exchange}</Text>
             </View>
-          ))}
-        </View>
-      )}
-    </View>
+          </View>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#F9FAFB',  // Soft background color
+    backgroundColor: '#FAFAFA',
+    marginBottom: 60,
   },
-  welcomeText: {
-    fontSize: 28,
+  scrollContainer: {
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+  },
+  header: {
+    paddingTop: 42,
+  },
+  greeting: {
+    fontSize: 22,
     fontWeight: '600',
-    color: '#1F2A44',  // Dark text for high readability
-    textAlign: 'center',
-    marginBottom: 40,
+    color: '#222222',
+    letterSpacing: 0.3,
   },
-  loadingText: {
-    fontSize: 18,
-    color: '#0B74D4',
-    textAlign: 'center',
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 30,
-  },
-  emptyStateText: {
-    fontSize: 18,
-    color: '#7D8B99',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  createPortfolioButton: {
-    marginTop: 10,
-    paddingVertical: 12,
-    width: '60%',
-    borderRadius: 8,
-    backgroundColor: '#0B74D4',
-    marginBottom: 20,
-  },
-  portfolioList: {
-    marginTop: 20,
-  },
-  listTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#1F2A44',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  portfolioCard: {
-    padding: 16,
-    marginVertical: 10,
-    backgroundColor: '#FFFFFF', // White card background
-    borderRadius: 10,
+  quoteContainer: {
+    marginVertical: 20,
+    borderRadius: 12,
+    padding: 14,
     borderWidth: 1,
-    borderColor: '#E5E8ED', // Subtle border color for contrast
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    elevation: 2,  // Light shadow for depth
+    borderColor: '#E0E7FF',
+    backgroundColor: '#FFFFFF',
   },
-  portfolioTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1F2A44',
+  quoteText: {
+    fontSize: 13,
+    fontStyle: 'italic',
+    color: '#374151',
+    textAlign: 'center',
+    marginBottom: 6,
+    lineHeight: 18,
   },
-  portfolioSubtitle: {
-    fontSize: 16,
-    color: '#A0B0C0',
-    marginTop: 5,
+  authorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  authorImage: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    marginRight: 6,
+  },
+  authorText: {
+    fontSize: 12.5,
+    color: '#6B7280',
+  },
+  titleContainer: {
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  title: {
+    fontSize: 15.5,
+    fontWeight: '500',
+    color: '#4B5563',
+    letterSpacing: 0.2,
+  },
+  stockItem: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginBottom: 14,
+    borderRadius: 12,
+    borderRightWidth: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  ticker: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1F2937',
+    width: 60,
+  },
+  stockInfo: {
+    marginLeft: 10,
+    flex: 1,
+  },
+  stockName: {
+    fontSize: 13.5,
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: 2,
+    letterSpacing: 0.1,
+  },
+  exchange: {
+    fontSize: 12,
+    color: '#6B7280',
+    fontWeight: '400',
   },
 });

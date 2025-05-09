@@ -26,10 +26,12 @@ export const SearchPickers_ByQuery = async (req: Request, res: Response) => {
 
 		return res.json({
 			error: false,
-			data: response
+			data: response.quotes.filter((res) => res.isYahooFinance && res.quoteType === 'EQUITY')
 		});
 	} catch (error) {
-		logger.error(error);
+		if (process.env.DEBUG) {
+			logger.error(error);
+		}
 		return res.json({
 			data: [],
 			error: true
@@ -59,7 +61,9 @@ export const GetPickerData_ByQuery = async (req: Request, res: Response) => {
 			quoteSummary,
 		})
 	} catch (error) {
-		logger.error(error);
+		if (process.env.DEBUG) {
+			logger.error(error);
+		}
 		return res.json({
 			quoteSummary: [],
 			error: true
@@ -113,7 +117,7 @@ export const GetPickerDetailedData_ByQuery = async (req: Request, res: Response)
 			},
 		};
 
-		if (modulerStockData.earningsTrend.trend.length) {
+		if (modulerStockData.earningsTrend?.trend.length) {
 			const nextYear = modulerStockData.earningsTrend.trend?.find((t) => t.period === '+1y');
 			tickerData.epsGrowthRate = (nextYear.growth * 100);
 		}
@@ -125,7 +129,7 @@ export const GetPickerDetailedData_ByQuery = async (req: Request, res: Response)
 			peRatio: tickerData.peRatio,
 			epsGrowthRate: tickerData.epsGrowthRate,
 			dividendYield: tickerData.dividendYield * 100,
-			returnOnEquity: modulerStockData.financialData.returnOnEquity
+			returnOnEquity: modulerStockData.financialData?.returnOnEquity ?? 0
 		});
 
 		tickerData.analysis = helpers.evaluateStock({
@@ -137,7 +141,7 @@ export const GetPickerDetailedData_ByQuery = async (req: Request, res: Response)
 			pegRatio: tickerData.calculations.pegRatio,
 			priceToBookRatio: tickerData.calculations.priceToBookRatio,
 			returnOnEquity: tickerData.calculations.returnOnEquity,
-			sector: tickerData.sector.replace(' ', '_'),
+			sector: tickerData.sector?.replace(' ', '_') ?? 'Unknown',
 		})
 
 		return res.json({
@@ -145,7 +149,9 @@ export const GetPickerDetailedData_ByQuery = async (req: Request, res: Response)
 			data: tickerData,
 		});
 	} catch (error) {
-		logger.error(error);
+		if (process.env.DEBUG) {
+			logger.error(error);
+		}
 		return res.json({
 			message: error,
 			error: true

@@ -1,3 +1,5 @@
+import * as firebaseAuth from 'firebase/auth';
+
 export enum AnalysisSummaryVerdict {
 	UNDERVALUED = 1,
 	FAIR = 2,
@@ -116,3 +118,39 @@ export type SearchPickerResults = {
     timeTakenForCulturalAssets: number
 	quotes: PickerQuote[]
 }
+
+export interface FirestoreUser {
+	name: string,
+	createAt?: string,
+	uid: string,
+	dob: string,
+	bio: string,
+	email?: string,
+	phone: string | null
+};
+
+export interface AuthStore {
+	isLoggedIn: boolean;
+	initialized: boolean;
+	user: firebaseAuth.User | null;
+	fsUser: FirestoreUser | null;
+	setUser: (user: firebaseAuth.User | null) => void;
+	setLoggedIn: (status: boolean) => void;
+	setFsUser: (fsUser: FirestoreUser | null) => void;
+}
+
+export interface CreateNewBugReportParams {
+	userId: string,
+	description: string,
+	title: string,
+	contact?: string
+}
+
+export interface SendFeedbackRequestParams {
+	userId: string,
+	title: string,
+	message: string,
+	contact?: string
+}
+
+export interface UpdateAccountInfoParams extends FirestoreUser { };
