@@ -63,14 +63,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="watchlist"
-        options={{
-          tabBarLabel: 'Watchlist',
-          href: null,
-          tabBarIcon: ({ focused }) => TabBarIcon('star', focused),
-        }}
-      />
-      <Tabs.Screen
         name="settings"
         options={{
           tabBarLabel: 'Settings',

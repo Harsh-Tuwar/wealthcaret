@@ -105,10 +105,7 @@ const SearchTickers = () => {
                       pathname: '/(hidden)/ticker/[ticker_info]',
                       params: {
                         ticker_info: item.symbol,
-                        shortName: item.shortname,
-                        longName: item.longname,
                         exchange: item.exchange,
-                        ticker_sector: item.sector,
                       },
                     }}
                     asChild

@@ -147,7 +147,13 @@ const TickerInfoScreen = () => {
               { label: "Graham Growth Number", value: calculations?.grahamGrowthNumber, analysisKey: "Graham Growth Number", showDollarSign: true },
             ]
               .map((item, index) =>
-                <CalculationCard analysis={data.analysis} label={item.label} analysisKey={item.analysisKey} value={item.value} key={index} showDollarSign={item.showDollarSign} />
+                <CalculationCard
+                  analysis={data.analysis}
+                  label={item.label}
+                  analysisKey={item.analysisKey}
+                  value={item.value}
+                  key={index}
+                  showDollarSign={item.showDollarSign} />
               )
           }
         </View>

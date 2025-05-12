@@ -1,5 +1,6 @@
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useWatchlistStore } from '@/stores/useWatchlistStore';
+import { Link } from 'expo-router';
 import React from 'react';
 import {
   SafeAreaView,
@@ -8,6 +9,7 @@ import {
   Text,
   StyleSheet,
   Image,
+  Pressable,
 } from 'react-native';
 
 const quotes = [
@@ -67,15 +69,41 @@ export default function Home() {
           <Text style={styles.title}>Your Watchlist</Text>
         </View>
 
-        {watchlists.map((item) => (
-          <View key={item.symbol} style={[styles.stockItem, { borderRightColor: getRandomColor() }]}>
-            <Text style={styles.ticker}>{item.symbol}</Text>
-            <View style={styles.stockInfo}>
-              <Text style={styles.stockName}>{item.name}</Text>
-              <Text style={styles.exchange}>{item.exchange}</Text>
-            </View>
-          </View>
-        ))}
+
+        {/* <Link key={item.symbol} push href={{
+            pathname: '/(hidden)/ticker/[ticker_info]',
+            params: {
+              ticker_info: item.symbol,
+              exchange: item.exchange
+            }
+          }}> */}
+        {watchlists.map((item) => {
+          const borderColor = getRandomColor();
+          return (
+            <Link
+              key={item.symbol}
+              push
+              href={{
+                pathname: '/(hidden)/ticker/[ticker_info]',
+                params: {
+                  ticker_info: item.symbol,
+                  exchange: item.exchange,
+                },
+              }}
+              asChild
+            >
+              <Pressable>
+                <View style={[styles.stockItem, { borderRightColor: borderColor }]}>
+                  <Text style={styles.ticker}>{item.symbol}</Text>
+                  <View style={styles.stockInfo}>
+                    <Text style={styles.stockName}>{item.name}</Text>
+                    <Text style={styles.exchange}>{item.exchange}</Text>
+                  </View>
+                </View>
+              </Pressable>
+            </Link>
+          );
+        })}
       </ScrollView>
     </SafeAreaView>
   );
