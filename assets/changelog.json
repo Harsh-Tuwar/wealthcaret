@@ -40,5 +40,23 @@
 				"text": "Added additional check for PB ratio to prevent invalid values"
 			}
 		]
+	},
+	{
+		"version": "0.0.2",
+		"date": "2025-05-17",
+		"changes": [
+			{
+				"type": "addition",
+				"text": "Introduced a bottom sheet to show more info about specific stats"
+			},
+			{
+				"type": "update",
+				"text": "Clicking on a watchlisted item now redirects to the stock info page"
+			},
+			{
+				"type": "addition",
+				"text": "Added more quotes"
+			}
+		]
 	}
 ]

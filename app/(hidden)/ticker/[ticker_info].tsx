@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import React, { useRef } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Alert, Button } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RefreshControl, ScrollView } from 'react-native-gesture-handler';
@@ -8,9 +8,11 @@ import { useQuery } from '@tanstack/react-query';
 import network from '@/utils/network';
 import helpers from '@/utils/helpers';
 import CalculationCard from '@/components/tickerInfo/CalculationCard';
-import { DetailedPickerData } from '@/types/types';
+import { DetailedPickerData, StatKey } from '@/types/types';
 import { useWatchlistStore } from '@/stores/useWatchlistStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import StatsInfoContainer from '@/components/tickerInfo/StatsInfoContainer';
 
 const fetchPickerData = async (symbol: string) => {
   const data = await network.get(`/picker/data/detailed?picker=${symbol}`) as Promise<DetailedPickerData>;
@@ -23,6 +25,17 @@ const TickerInfoScreen = () => {
   const [lastFetched, setLastFetched] = React.useState<Date | null>(null);
   const watchlistStore = useWatchlistStore();
   const user = useAuthStore((s) => s.fsUser);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const snapPoints = React.useMemo(() => ['50%', '75%'], []);
+  const [activeState, setActiveStat] = React.useState<{
+    key: StatKey,
+    verdict: number,
+    currentValue: number
+  }>({
+    key: '',
+    verdict: 0,
+    currentValue: 0
+  });
 
   const { ticker_info: symbol, exchange } = useLocalSearchParams();
 
@@ -35,6 +48,10 @@ const TickerInfoScreen = () => {
     },
     enabled: !!symbol,
   });
+
+  const onButtonPress = () => {
+    bottomSheetModalRef.current?.present();
+  }
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -113,6 +130,7 @@ const TickerInfoScreen = () => {
       <ScrollView contentContainerStyle={styles.container} refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }>
+
         <Text style={styles.heading}>{name}</Text>
         <Text style={styles.ticker}>({symbol})</Text>
 
@@ -139,19 +157,52 @@ const TickerInfoScreen = () => {
           <Text style={styles.sectionTitle}>Additional Calculations</Text>
           {
             [
-              { label: "Fair Value Price", value: calculations?.fairValuePrice, analysisKey: "Fair Value Price", showDollarSign: true },
-              { label: "Price to Book Ratio", value: calculations?.priceToBookRatio, analysisKey: "Price to Book Ratio", showDollarSign: false },
-              { label: "PEG Ratio", value: calculations?.pegRatio, analysisKey: "PEG Ratio", showDollarSign: false },
-              { label: "Lynch Ratio", value: calculations?.lynchRatio, analysisKey: "Lynch Ratio",showDollarSign: false },
-              { label: "Graham number (conservative)", value: calculations?.grahamNumber, analysisKey: 'Graham Number', showDollarSign: true },
-              { label: "Graham Growth Number", value: calculations?.grahamGrowthNumber, analysisKey: "Graham Growth Number", showDollarSign: true },
+              { key: 'fairValuePrice', label: "Fair Value Price", value: calculations?.fairValuePrice, analysisKey: "Fair Value Price", showDollarSign: true },
+              { key: 'pbRatio', label: "Price to Book Ratio", value: calculations?.priceToBookRatio, analysisKey: "Price to Book Ratio", showDollarSign: false },
+              { key: 'pegRatio', label: "PEG Ratio", value: calculations?.pegRatio, analysisKey: "PEG Ratio", showDollarSign: false },
+              { key: 'lynchRatio', label: "Lynch Ratio", value: calculations?.lynchRatio, analysisKey: "Lynch Ratio", showDollarSign: false },
+              { key: 'grahamNumber', label: "Graham number (conservative)", value: calculations?.grahamNumber, analysisKey: 'Graham Number', showDollarSign: true },
+              { key: 'grahamGrowth', label: "Graham Growth Number", value: calculations?.grahamGrowthNumber, analysisKey: "Graham Growth Number", showDollarSign: true },
             ]
-              .map((item, index) =>
-                <CalculationCard analysis={data.analysis} label={item.label} analysisKey={item.analysisKey} value={item.value} key={index} showDollarSign={item.showDollarSign} />
+              .map((item) =>
+                <CalculationCard
+                  analysis={data.analysis}
+                  label={item.label}
+                  analysisKey={item.analysisKey}
+                  value={item.value}
+                  key={item.key as StatKey}
+                  emojiKey={item.key as StatKey}
+                  onPress={() => {
+                    const selectedStatItem = data.analysis.summary.find((summaryItem) => summaryItem.key === item.key);
+
+                    if (selectedStatItem) {
+                      setActiveStat({
+                        key: item.key as StatKey,
+                        verdict: selectedStatItem?.verdict,
+                        currentValue: selectedStatItem?.value
+                      });
+                      onButtonPress();
+                    }
+                  }}
+                  showDollarSign={item.showDollarSign} />
               )
           }
         </View>
       </ScrollView>
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        style={styles.bottomSheetModel}
+        enablePanDownToClose
+        enableDismissOnClose
+        snapPoints={snapPoints}
+        onDismiss={() => setActiveStat({
+          key: '',
+          verdict: 0,
+          currentValue: 0
+        })}
+      >
+        <StatsInfoContainer stat={activeState.key} verdict={activeState.verdict} currentValue={activeState.currentValue} />
+      </BottomSheetModal>
     </SafeAreaView>
   );
 };
@@ -159,6 +210,17 @@ const TickerInfoScreen = () => {
 export default TickerInfoScreen;
 
 const styles = StyleSheet.create({
+  bottomSheetModel: {
+    backgroundColor: '#fff', // solid white background for the sheet
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    marginTop:30,
+    elevation: 10, // Android shadow
+  },
   safeArea: {
     flex: 1,
     backgroundColor: '#fefefe',
@@ -229,7 +291,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontSize: 12,
     color: '#555',
-  },  
+  },
   statLabel: {
     fontSize: 12,
     color: '#777',
