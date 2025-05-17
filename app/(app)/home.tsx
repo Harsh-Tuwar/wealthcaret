@@ -1,5 +1,7 @@
+import { quotes } from '@/constants/quotes';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useWatchlistStore } from '@/stores/useWatchlistStore';
+import { Link } from 'expo-router';
 import React from 'react';
 import {
   SafeAreaView,
@@ -8,35 +10,8 @@ import {
   Text,
   StyleSheet,
   Image,
+  Pressable,
 } from 'react-native';
-
-const quotes = [
-  {
-    author: 'Warren Buffett',
-    quote: "The stock market is a device for transferring money from the impatient to the patient.",
-    authorImage: 'https://placekitten.com/40/40',
-  },
-  {
-    author: 'Peter Lynch',
-    quote: "Know what you own, and know why you own it.",
-    authorImage: 'https://placekitten.com/40/40',
-  },
-  {
-    author: 'Charlie Munger',
-    quote: "The best thing a human being can do is to help another human being know more.",
-    authorImage: 'https://placekitten.com/40/40',
-  },
-  {
-    author: 'Benjamin Graham',
-    quote: "The individual investor should act consistently as an investor and not as a speculator.",
-    authorImage: 'https://placekitten.com/40/40',
-  },
-  {
-    author: 'John Templeton',
-    quote: "The four most dangerous words in investing are: 'This time it's different.'",
-    authorImage: 'https://placekitten.com/40/40',
-  },
-];
 
 const COLORS = ['#FF6B6B', '#6BCB77', '#4D96FF', '#FFD93D', '#FF6F91', '#845EC2'];
 
@@ -58,7 +33,6 @@ export default function Home() {
         <View style={styles.quoteContainer}>
           <Text style={styles.quoteText}>"{randomQuote.quote}"</Text>
           <View style={styles.authorContainer}>
-            <Image source={{ uri: randomQuote.authorImage }} style={styles.authorImage} />
             <Text style={styles.authorText}>- {randomQuote.author}</Text>
           </View>
         </View>
@@ -67,15 +41,33 @@ export default function Home() {
           <Text style={styles.title}>Your Watchlist</Text>
         </View>
 
-        {watchlists.map((item) => (
-          <View key={item.symbol} style={[styles.stockItem, { borderRightColor: getRandomColor() }]}>
-            <Text style={styles.ticker}>{item.symbol}</Text>
-            <View style={styles.stockInfo}>
-              <Text style={styles.stockName}>{item.name}</Text>
-              <Text style={styles.exchange}>{item.exchange}</Text>
-            </View>
-          </View>
-        ))}
+        {watchlists.map((item) => {
+          const borderColor = getRandomColor();
+          return (
+            <Link
+              key={item.symbol}
+              push
+              href={{
+                pathname: '/(hidden)/ticker/[ticker_info]',
+                params: {
+                  ticker_info: item.symbol,
+                  exchange: item.exchange,
+                },
+              }}
+              asChild
+            >
+              <Pressable>
+                <View style={[styles.stockItem, { borderRightColor: borderColor }]}>
+                  <Text style={styles.ticker}>{item.symbol}</Text>
+                  <View style={styles.stockInfo}>
+                    <Text style={styles.stockName}>{item.name}</Text>
+                    <Text style={styles.exchange}>{item.exchange}</Text>
+                  </View>
+                </View>
+              </Pressable>
+            </Link>
+          );
+        })}
       </ScrollView>
     </SafeAreaView>
   );
@@ -90,6 +82,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     paddingHorizontal: 24,
     paddingBottom: 40,
+    flex: 1
   },
   header: {
     paddingTop: 42,

@@ -111,6 +111,7 @@ export default abstract class helpers {
 		// Graham Number comparison
 		if (grahamNumber === 0) {
 			analysis.push({
+				key: 'grahamNumber',
 				metric: 'Graham Number',
 				value: grahamNumber,
 				verdict: AnalysisSummaryVerdict.UNRELIABLE,
@@ -118,6 +119,7 @@ export default abstract class helpers {
 			});
 		} else if (currentPrice < grahamNumber) {
 			analysis.push({
+				key: 'grahamNumber',
 				metric: 'Graham Number',
 				value: grahamNumber,
 				verdict: AnalysisSummaryVerdict.UNDERVALUED,
@@ -125,6 +127,7 @@ export default abstract class helpers {
 			});
 		} else {
 			analysis.push({
+				key: 'grahamNumber',
 				metric: 'Graham Number',
 				value: grahamNumber,
 				verdict: AnalysisSummaryVerdict.OVERVALUED,
@@ -135,6 +138,7 @@ export default abstract class helpers {
 		// Price to Book Ratio
 		if (priceToBookRatio === 0) {
 			analysis.push({
+				key: 'pbRatio',
 				metric: 'Price to Book Ratio',
 				value: priceToBookRatio,
 				verdict: AnalysisSummaryVerdict.UNRELIABLE,
@@ -142,6 +146,7 @@ export default abstract class helpers {
 			});
 		} else if (priceToBookRatio < 1) {
 			analysis.push({
+				key: 'pbRatio',
 				metric: 'Price to Book Ratio',
 				value: priceToBookRatio,
 				verdict: AnalysisSummaryVerdict.UNDERVALUED,
@@ -149,6 +154,7 @@ export default abstract class helpers {
 			});
 		} else if (priceToBookRatio >= 1 && priceToBookRatio <= 1.5) {
 			analysis.push({
+				key: 'pbRatio',
 				metric: 'Price to Book Ratio',
 				value: priceToBookRatio,
 				verdict: AnalysisSummaryVerdict.FAIR,
@@ -156,6 +162,7 @@ export default abstract class helpers {
 			});
 		} else {
 			analysis.push({
+				key: 'pbRatio',
 				metric: 'Price to Book Ratio',
 				value: priceToBookRatio,
 				verdict: AnalysisSummaryVerdict.OVERVALUED,
@@ -166,6 +173,7 @@ export default abstract class helpers {
 		// PEG Ratio
 		if (pegRatio < 1 && pegRatio > 0) {
 			analysis.push({
+				key: 'pegRatio',
 				metric: 'PEG Ratio',
 				value: pegRatio,
 				verdict: AnalysisSummaryVerdict.UNDERVALUED,
@@ -173,6 +181,7 @@ export default abstract class helpers {
 			});
 		} else if (pegRatio >= 1 && pegRatio <= 1.5) {
 			analysis.push({
+				key: 'pegRatio',
 				metric: 'PEG Ratio',
 				value: pegRatio,
 				verdict: AnalysisSummaryVerdict.FAIR,
@@ -180,6 +189,7 @@ export default abstract class helpers {
 			});
 		} else if (pegRatio === 0) { 
 			analysis.push({
+				key: 'pegRatio',
 				metric: 'PEG Ratio',
 				value: pegRatio,
 				verdict: AnalysisSummaryVerdict.UNRELIABLE,
@@ -187,6 +197,7 @@ export default abstract class helpers {
 			})
 		} else {
 			analysis.push({
+				key: 'pegRatio',
 				metric: 'PEG Ratio',
 				value: pegRatio,
 				verdict: AnalysisSummaryVerdict.OVERVALUED,
@@ -197,6 +208,7 @@ export default abstract class helpers {
 		// Lynch Ratio
 		if (lynchRatio < 1 && lynchRatio > 0) {
 			analysis.push({
+				key: 'lynchRatio',
 				metric: 'Lynch Ratio',
 				value: lynchRatio,
 				verdict: AnalysisSummaryVerdict.OVERVALUED,
@@ -205,6 +217,7 @@ export default abstract class helpers {
 		} else if (lynchRatio >= 1 && lynchRatio <= 1.5) {
 			// fair
 			analysis.push({
+				key: 'lynchRatio',
 				metric: 'Lynch Ratio',
 				value: lynchRatio,
 				verdict: AnalysisSummaryVerdict.FAIR,
@@ -212,6 +225,7 @@ export default abstract class helpers {
 			});
 		} else if (lynchRatio === 0) {
 			analysis.push({
+				key: 'lynchRatio',
 				metric: 'Lynch Ratio',
 				value: lynchRatio,
 				verdict: AnalysisSummaryVerdict.UNRELIABLE,
@@ -219,6 +233,7 @@ export default abstract class helpers {
 			});
 		} else {
 			analysis.push({
+				key: 'lynchRatio',
 				metric: 'Lynch Ratio',
 				value: lynchRatio,
 				verdict: AnalysisSummaryVerdict.UNDERVALUED,
@@ -229,6 +244,7 @@ export default abstract class helpers {
 		// Graham Growth Number
 		if (grahamGrowthNumber === 0) {
 			analysis.push({
+				key: 'grahamGrowth',
 				metric: 'Graham Growth Number',
 				value: grahamGrowthNumber,
 				verdict: AnalysisSummaryVerdict.UNRELIABLE,
@@ -236,6 +252,7 @@ export default abstract class helpers {
 			});
 		} else if (currentPrice < grahamGrowthNumber * 0.9) {
 			analysis.push({
+				key: 'grahamGrowth',
 				metric: 'Graham Growth Number',
 				value: grahamGrowthNumber,
 				verdict: AnalysisSummaryVerdict.UNDERVALUED,
@@ -244,6 +261,7 @@ export default abstract class helpers {
 			});
 		  } else if (currentPrice > grahamGrowthNumber * 1.1) {
 			analysis.push({
+				key: 'grahamGrowth',
 			  metric: 'Graham Growth Number',
 			  value: grahamGrowthNumber,
 			  verdict: AnalysisSummaryVerdict.OVERVALUED,
@@ -252,6 +270,7 @@ export default abstract class helpers {
 			});
 		  } else {
 			analysis.push({
+				key: 'grahamGrowth',
 			  metric: 'Graham Growth Number',
 			  value: grahamGrowthNumber,
 			  verdict: AnalysisSummaryVerdict.FAIR,
@@ -264,6 +283,7 @@ export default abstract class helpers {
 		// Fair Value Price vs Current Price
 		if (fairValuePrice === 0) { 
 			analysis.push({
+				key: 'fairValuePrice',
 				metric: 'Fair Value Price',
 				value: fairValuePrice,
 				verdict: AnalysisSummaryVerdict.UNRELIABLE,
@@ -271,6 +291,7 @@ export default abstract class helpers {
 			});
 		} else if (currentPrice < fairValuePrice * 0.95) {
 			analysis.push({
+				key: 'fairValuePrice',
 				metric: 'Fair Value Price',
 				value: fairValuePrice,
 				verdict: AnalysisSummaryVerdict.UNDERVALUED,
@@ -278,6 +299,7 @@ export default abstract class helpers {
 			});
 		} else if (currentPrice <= fairValuePrice * 1.05) {
 			analysis.push({
+				key: 'fairValuePrice',
 				metric: 'Fair Value Price',
 				value: fairValuePrice,
 				verdict: AnalysisSummaryVerdict.FAIR,
@@ -285,6 +307,7 @@ export default abstract class helpers {
 			});
 		} else {
 			analysis.push({
+				key: 'fairValuePrice',
 				metric: 'Fair Value Price',
 				value: fairValuePrice,
 				verdict: AnalysisSummaryVerdict.OVERVALUED,
@@ -295,6 +318,7 @@ export default abstract class helpers {
 		// Return on Equity
 		if (returnOnEquity < 0) {
 			analysis.push({
+				key: 'roe',
 				metric: "Return on Equity",
 				value: returnOnEquity,
 				verdict: AnalysisSummaryVerdict.OVERVALUED,
@@ -302,6 +326,7 @@ export default abstract class helpers {
 			});
 		} else if (returnOnEquity >= 1.5) {
 			analysis.push({
+				key: 'roe',
 				metric: "Return on Equity",
 				value: returnOnEquity,
 				verdict: AnalysisSummaryVerdict.UNDERVALUED,
@@ -309,6 +334,7 @@ export default abstract class helpers {
 			});
 		} else {
 			analysis.push({
+				key: 'roe',
 				metric: "Return on Equity",
 				value: returnOnEquity,
 				verdict: AnalysisSummaryVerdict.FAIR,
