@@ -103,6 +103,7 @@ const StatsInfoContainer = ({ stat, currentValue, verdict }: StatsInfoContainerP
 	return (
 		<BottomSheetScrollView contentContainerStyle={styles.container}>
 			<Text style={styles.title}>{item.title}</Text>
+			<View style={styles.bottomBorder} />
 
 			<View style={styles.verdictRow}>
 				<Text style={[
@@ -199,7 +200,18 @@ const styles = StyleSheet.create({
 		fontSize: 13,
 	},
 	section: {
-		marginBottom: 20,
+		marginBottom: 12,
+		borderWidth: 1,
+		borderColor: '#ccc',
+		borderRadius: 8,
+		padding: 12,
+		backgroundColor: '#fafafa',
+	},
+	bottomBorder: {
+		borderBottomWidth: 1,
+		borderBottomColor: '#ccc',
+		marginBottom: 20,  // Optional spacing below the border
+		paddingBottom: 6, // Optional padding above the border
 	},
 	sectionHeader: {
 		fontSize: 16,

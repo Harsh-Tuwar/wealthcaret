@@ -1,3 +1,4 @@
+import { quotes } from '@/constants/quotes';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useWatchlistStore } from '@/stores/useWatchlistStore';
 import { Link } from 'expo-router';
@@ -11,34 +12,6 @@ import {
   Image,
   Pressable,
 } from 'react-native';
-
-const quotes = [
-  {
-    author: 'Warren Buffett',
-    quote: "The stock market is a device for transferring money from the impatient to the patient.",
-    authorImage: 'https://placekitten.com/40/40',
-  },
-  {
-    author: 'Peter Lynch',
-    quote: "Know what you own, and know why you own it.",
-    authorImage: 'https://placekitten.com/40/40',
-  },
-  {
-    author: 'Charlie Munger',
-    quote: "The best thing a human being can do is to help another human being know more.",
-    authorImage: 'https://placekitten.com/40/40',
-  },
-  {
-    author: 'Benjamin Graham',
-    quote: "The individual investor should act consistently as an investor and not as a speculator.",
-    authorImage: 'https://placekitten.com/40/40',
-  },
-  {
-    author: 'John Templeton',
-    quote: "The four most dangerous words in investing are: 'This time it's different.'",
-    authorImage: 'https://placekitten.com/40/40',
-  },
-];
 
 const COLORS = ['#FF6B6B', '#6BCB77', '#4D96FF', '#FFD93D', '#FF6F91', '#845EC2'];
 
@@ -60,7 +33,6 @@ export default function Home() {
         <View style={styles.quoteContainer}>
           <Text style={styles.quoteText}>"{randomQuote.quote}"</Text>
           <View style={styles.authorContainer}>
-            <Image source={{ uri: randomQuote.authorImage }} style={styles.authorImage} />
             <Text style={styles.authorText}>- {randomQuote.author}</Text>
           </View>
         </View>

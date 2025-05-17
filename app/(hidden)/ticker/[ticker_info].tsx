@@ -211,7 +211,15 @@ export default TickerInfoScreen;
 
 const styles = StyleSheet.create({
   bottomSheetModel: {
-    marginTop: 30
+    backgroundColor: '#fff', // solid white background for the sheet
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    marginTop:30,
+    elevation: 10, // Android shadow
   },
   safeArea: {
     flex: 1,
