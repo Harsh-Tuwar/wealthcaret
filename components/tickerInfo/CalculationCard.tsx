@@ -1,5 +1,5 @@
 import React from 'react'
-import { Analysis } from '@/types/types';
+import { Analysis, StatKey } from '@/types/types';
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 interface CalculationCardProps {
@@ -8,7 +8,8 @@ interface CalculationCardProps {
 	analysisKey: string,
 	analysis: Analysis,
 	showDollarSign?: boolean,
-	onPress: VoidFunction
+	onPress: VoidFunction,
+	emojiKey: StatKey
 }
 
 const verdictColors: Record<number, string> = {
@@ -32,11 +33,22 @@ const verdictEmojis: Record<number, string> = {
 	4: '❓',
 };
 
+const titleEmojisMap: Record<StatKey, string> = {
+	'fairValuePrice': '📈',
+	'pbRatio': '🏦',
+	'pegRatio': '⚖️',
+	'lynchRatio': '🧠',
+	'grahamNumber': '🛡️',
+	'grahamGrowth': '🌱',
+	'': '😵'
+}
+
 const CalculationCard = ({
 	analysis,
 	analysisKey,
 	label,
 	value,
+	emojiKey,
 	showDollarSign = false,
 	onPress
 }: CalculationCardProps) => {
@@ -57,12 +69,13 @@ const CalculationCard = ({
 	const verdictLabel: string = analysisItem ? verdictLabels[analysisItem.verdict] : 'Unknown';
 	const emoji: string = analysisItem ? verdictEmojis[analysisItem.verdict] : '❓';
 	const interpretation = analysisItem?.interpretation;
+	const titleEmoji: string = titleEmojisMap[emojiKey];
 	
 	return (
 		<View style={styles.calculationCard} key={label}>
 			<Pressable onPress={onPress}>
 				<View style={styles.cardHeader}>
-					<Text style={styles.calculationLabel}>{label}</Text>
+					<Text style={styles.calculationLabel}>{titleEmoji} {label}</Text>
 					<Text style={[styles.verdictLabel, { color: verdictColor }]}>
 						{emoji} {verdictLabel}
 					</Text>

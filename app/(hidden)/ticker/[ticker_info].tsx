@@ -170,7 +170,8 @@ const TickerInfoScreen = () => {
                   label={item.label}
                   analysisKey={item.analysisKey}
                   value={item.value}
-                  key={item.key}
+                  key={item.key as StatKey}
+                  emojiKey={item.key as StatKey}
                   onPress={() => {
                     const selectedStatItem = data.analysis.summary.find((summaryItem) => summaryItem.key === item.key);
 

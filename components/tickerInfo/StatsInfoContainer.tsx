@@ -27,7 +27,7 @@ const verdictEmojis: Record<number, string> = {
 const STATS_INFO = [
 	{
 		key: 'fairValuePrice',
-		title: 'Fair Value Price',
+		title: '🏷️ Fair Value Price',
 		sectorTags: ['Tech', 'Consumer Discretionary'],
 		formula: 'EPS × EPS Growth Rate',
 		whatItMeans: `The Fair Value Price estimates a stock's intrinsic worth based on its current earnings and projected earnings growth. It reflects what the stock should be worth if the company achieves expected growth rates.`,
@@ -37,7 +37,7 @@ const STATS_INFO = [
 	},
 	{
 		key: 'pbRatio',
-		title: 'Price-to-Book Ratio (P/B)',
+		title: '🏷️ Price-to-Book Ratio (P/B)',
 		sectorTags: ['Finance', 'Industrial', 'Energy'],
 		formula: 'Market Price per Share ÷ Book Value per Share',
 		whatItMeans: `P/B ratio compares the market's valuation of a company to its net asset value. It reflects how much investors are paying for each dollar of net assets.`,
@@ -47,7 +47,7 @@ const STATS_INFO = [
 	},
 	{
 		key: 'pegRatio',
-		title: 'PEG Ratio',
+		title: '🏷️ PEG Ratio',
 		sectorTags: ['Tech', 'Healthcare'],
 		formula: 'P/E Ratio ÷ Annual EPS Growth Rate',
 		whatItMeans: `PEG ratio refines the Price-to-Earnings ratio by factoring in earnings growth. It provides a more balanced view of valuation relative to growth.`,
@@ -57,17 +57,17 @@ const STATS_INFO = [
 	},
 	{
 		key: 'lynchRatio',
-		title: 'Peter Lynch Fair Value (Lynch Ratio)',
+		title: '🏷️ Peter Lynch Ratio (Lynch Ratio)',
 		sectorTags: ['Tech', 'Growth'],
-		formula: 'Fair Value = EPS × (Growth Rate + 2 × Inflation Rate)',
-		whatItMeans: `This valuation metric, introduced by Peter Lynch, adjusts fair value estimates by combining earnings, growth, and inflation to set realistic price targets.`,
-		interpretation: `- Price below Lynch Fair Value can indicate a buying opportunity.\n- Price above may signal overvaluation.\n- Useful during inflationary environments.`,
-		whyItMatters: `Growth stocks are sensitive to economic factors like inflation. This formula helps balance expected growth against macroeconomic conditions.`,
-		practicalScenario: `Assuming EPS $5, growth rate 10%, inflation 3%, Lynch Fair Value = 5 × (10 + 2×3) = 5 × 16 = $80. If stock trades at $70, it may be undervalued considering growth and inflation.`,
+		formula: 'Lynch Ratio = (EPS Growth Rate + Dividend Yield) / P/E Ratio',
+		whatItMeans: `This valuation metric, popularized by Peter Lynch, evaluates whether a stock is fairly valued by comparing growth and income (dividends) to its valuation (P/E ratio).`,
+		interpretation: `• Lynch Ratio > 1 → Potential undervaluation based on growth and dividends.\n• Lynch Ratio ≈ 1 → Fairly valued.\n• Lynch Ratio < 1 → Potential overvaluation.\n• Works well for comparing both growth and income-generating stocks.`,
+		whyItMatters: `Growth alone doesn't justify valuation—dividends and earnings multiple must also be considered. This ratio balances all three to provide a sanity check for valuation.`,
+		practicalScenario: `If a company has an EPS growth rate of 12%, a dividend yield of 2%, and a P/E ratio of 10, then Lynch Ratio = (12 + 2) / 10 = 1.4. A value above 1 suggests reasonable or undervalued pricing based on fundamentals.`,
 	},
 	{
 		key: 'grahamNumber',
-		title: 'Graham Number',
+		title: '🏷️ Graham Number',
 		sectorTags: ['Value Investing', 'Consumer Staples', 'Industrial'],
 		formula: '√(22.5 × EPS × Book Value per Share)',
 		whatItMeans: `The Graham Number gives a conservative estimate of a stock’s fair value based on earnings and book value, focusing on margin of safety.`,
@@ -77,7 +77,7 @@ const STATS_INFO = [
 	},
 	{
 		key: 'grahamGrowth',
-		title: 'Graham Growth Formula',
+		title: '🏷️ Graham Growth Formula',
 		sectorTags: ['Finance', 'Value Stocks'],
 		formula: 'Intrinsic Value = EPS × (8.5 + 2 × Growth Rate)',
 		whatItMeans: `This formula extends Graham's valuation by incorporating growth, estimating a stock’s value with reasonable growth expectations.`,
@@ -121,7 +121,7 @@ const StatsInfoContainer = ({ stat, currentValue, verdict }: StatsInfoContainerP
 			</View>
 
 			<View style={styles.section}>
-				<Text style={styles.sectionHeader}>Relevant Sectors</Text>
+				<Text style={styles.sectionHeader}>🏭 Relevant Sectors</Text>
 				<View style={styles.sectorTags}>
 					{item.sectorTags.map((tag) => (
 						<View key={tag} style={styles.sectorTag}>
@@ -132,24 +132,24 @@ const StatsInfoContainer = ({ stat, currentValue, verdict }: StatsInfoContainerP
 			</View>
 
 			<View style={styles.section}>
-				<Text style={styles.sectionHeader}>Formula</Text>
+				<Text style={styles.sectionHeader}>🧮 Formula</Text>
 				<Text style={styles.formula}>{item.formula}</Text>
 			</View>
 
 			<View style={styles.section}>
-				<Text style={styles.sectionHeader}>What it means</Text>
+				<Text style={styles.sectionHeader}>📖 What it means</Text>
 				<Text style={styles.details}>{item.whatItMeans}</Text>
-				<Text style={[styles.details, { marginTop: 8, fontWeight: '600' }]}>Interpretation:</Text>
+				<Text style={[styles.details, { marginTop: 8, fontWeight: '600' }]}>🧠 Interpretation:</Text>
 				<Text style={styles.details}>{item.interpretation}</Text>
 			</View>
 
 			<View style={styles.section}>
-				<Text style={styles.sectionHeader}>Why it matters</Text>
+				<Text style={styles.sectionHeader}>🎯 Why it matters</Text>
 				<Text style={styles.details}>{item.whyItMatters}</Text>
 			</View>
 
 			<View style={styles.section}>
-				<Text style={styles.sectionHeader}>Practical Scenario</Text>
+				<Text style={styles.sectionHeader}>💡 Practical Scenario</Text>
 				<Text style={styles.details}>{item.practicalScenario}</Text>
 			</View>
 
