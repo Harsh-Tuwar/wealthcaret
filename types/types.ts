@@ -11,7 +11,8 @@ export type AnalysisSummary = {
 	metric: string
 	value: number
 	interpretation: string
-	verdict: AnalysisSummaryVerdict
+	verdict: AnalysisSummaryVerdict,
+	key: string
 }
 
 export type Analysis = {
@@ -154,3 +155,5 @@ export interface SendFeedbackRequestParams {
 }
 
 export interface UpdateAccountInfoParams extends FirestoreUser { };
+
+export type StatKey = '' | 'fairValuePrice' | 'pbRatio' | 'pegRatio' | 'lynchRatio' | 'grahamNumber' | 'grahamGrowth';

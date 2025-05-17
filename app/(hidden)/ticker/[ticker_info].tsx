@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import network from '@/utils/network';
 import helpers from '@/utils/helpers';
 import CalculationCard from '@/components/tickerInfo/CalculationCard';
-import { DetailedPickerData } from '@/types/types';
+import { DetailedPickerData, StatKey } from '@/types/types';
 import { useWatchlistStore } from '@/stores/useWatchlistStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -26,7 +26,16 @@ const TickerInfoScreen = () => {
   const watchlistStore = useWatchlistStore();
   const user = useAuthStore((s) => s.fsUser);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-  const snapPoints = React.useMemo(() => ['30%', '75%'], []);
+  const snapPoints = React.useMemo(() => ['50%', '75%'], []);
+  const [activeState, setActiveStat] = React.useState<{
+    key: StatKey,
+    verdict: number,
+    currentValue: number
+  }>({
+    key: '',
+    verdict: 0,
+    currentValue: 0
+  });
 
   const { ticker_info: symbol, exchange } = useLocalSearchParams();
 
@@ -148,21 +157,32 @@ const TickerInfoScreen = () => {
           <Text style={styles.sectionTitle}>Additional Calculations</Text>
           {
             [
-              { label: "Fair Value Price", value: calculations?.fairValuePrice, analysisKey: "Fair Value Price", showDollarSign: true },
-              { label: "Price to Book Ratio", value: calculations?.priceToBookRatio, analysisKey: "Price to Book Ratio", showDollarSign: false },
-              { label: "PEG Ratio", value: calculations?.pegRatio, analysisKey: "PEG Ratio", showDollarSign: false },
-              { label: "Lynch Ratio", value: calculations?.lynchRatio, analysisKey: "Lynch Ratio", showDollarSign: false },
-              { label: "Graham number (conservative)", value: calculations?.grahamNumber, analysisKey: 'Graham Number', showDollarSign: true },
-              { label: "Graham Growth Number", value: calculations?.grahamGrowthNumber, analysisKey: "Graham Growth Number", showDollarSign: true },
+              { key: 'fairValuePrice', label: "Fair Value Price", value: calculations?.fairValuePrice, analysisKey: "Fair Value Price", showDollarSign: true },
+              { key: 'pbRatio', label: "Price to Book Ratio", value: calculations?.priceToBookRatio, analysisKey: "Price to Book Ratio", showDollarSign: false },
+              { key: 'pegRatio', label: "PEG Ratio", value: calculations?.pegRatio, analysisKey: "PEG Ratio", showDollarSign: false },
+              { key: 'lynchRatio', label: "Lynch Ratio", value: calculations?.lynchRatio, analysisKey: "Lynch Ratio", showDollarSign: false },
+              { key: 'grahamNumber', label: "Graham number (conservative)", value: calculations?.grahamNumber, analysisKey: 'Graham Number', showDollarSign: true },
+              { key: 'grahamGrowth', label: "Graham Growth Number", value: calculations?.grahamGrowthNumber, analysisKey: "Graham Growth Number", showDollarSign: true },
             ]
-              .map((item, index) =>
+              .map((item) =>
                 <CalculationCard
                   analysis={data.analysis}
                   label={item.label}
                   analysisKey={item.analysisKey}
                   value={item.value}
-                  key={index}
-                  onPress={onButtonPress}
+                  key={item.key}
+                  onPress={() => {
+                    const selectedStatItem = data.analysis.summary.find((summaryItem) => summaryItem.key === item.key);
+
+                    if (selectedStatItem) {
+                      setActiveStat({
+                        key: item.key as StatKey,
+                        verdict: selectedStatItem?.verdict,
+                        currentValue: selectedStatItem?.value
+                      });
+                      onButtonPress();
+                    }
+                  }}
                   showDollarSign={item.showDollarSign} />
               )
           }
@@ -174,8 +194,13 @@ const TickerInfoScreen = () => {
         enablePanDownToClose
         enableDismissOnClose
         snapPoints={snapPoints}
+        onDismiss={() => setActiveStat({
+          key: '',
+          verdict: 0,
+          currentValue: 0
+        })}
       >
-        <StatsInfoContainer />
+        <StatsInfoContainer stat={activeState.key} verdict={activeState.verdict} currentValue={activeState.currentValue} />
       </BottomSheetModal>
     </SafeAreaView>
   );

@@ -6,6 +6,7 @@ export enum AnalysisSummaryVerdict {
 }
 
 export type AnalysisSummmary = {
+	key: string,
 	metric: string
 	value: string | number | null
 	interpretation: string,
