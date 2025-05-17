@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import React, { useRef } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Alert, Button } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RefreshControl, ScrollView } from 'react-native-gesture-handler';
@@ -11,6 +11,8 @@ import CalculationCard from '@/components/tickerInfo/CalculationCard';
 import { DetailedPickerData } from '@/types/types';
 import { useWatchlistStore } from '@/stores/useWatchlistStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import StatsInfoContainer from '@/components/tickerInfo/StatsInfoContainer';
 
 const fetchPickerData = async (symbol: string) => {
   const data = await network.get(`/picker/data/detailed?picker=${symbol}`) as Promise<DetailedPickerData>;
@@ -23,6 +25,8 @@ const TickerInfoScreen = () => {
   const [lastFetched, setLastFetched] = React.useState<Date | null>(null);
   const watchlistStore = useWatchlistStore();
   const user = useAuthStore((s) => s.fsUser);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const snapPoints = React.useMemo(() => ['30%', '75%'], []);
 
   const { ticker_info: symbol, exchange } = useLocalSearchParams();
 
@@ -35,6 +39,10 @@ const TickerInfoScreen = () => {
     },
     enabled: !!symbol,
   });
+
+  const onButtonPress = () => {
+    bottomSheetModalRef.current?.present();
+  }
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -113,6 +121,7 @@ const TickerInfoScreen = () => {
       <ScrollView contentContainerStyle={styles.container} refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }>
+
         <Text style={styles.heading}>{name}</Text>
         <Text style={styles.ticker}>({symbol})</Text>
 
@@ -142,7 +151,7 @@ const TickerInfoScreen = () => {
               { label: "Fair Value Price", value: calculations?.fairValuePrice, analysisKey: "Fair Value Price", showDollarSign: true },
               { label: "Price to Book Ratio", value: calculations?.priceToBookRatio, analysisKey: "Price to Book Ratio", showDollarSign: false },
               { label: "PEG Ratio", value: calculations?.pegRatio, analysisKey: "PEG Ratio", showDollarSign: false },
-              { label: "Lynch Ratio", value: calculations?.lynchRatio, analysisKey: "Lynch Ratio",showDollarSign: false },
+              { label: "Lynch Ratio", value: calculations?.lynchRatio, analysisKey: "Lynch Ratio", showDollarSign: false },
               { label: "Graham number (conservative)", value: calculations?.grahamNumber, analysisKey: 'Graham Number', showDollarSign: true },
               { label: "Graham Growth Number", value: calculations?.grahamGrowthNumber, analysisKey: "Graham Growth Number", showDollarSign: true },
             ]
@@ -153,11 +162,21 @@ const TickerInfoScreen = () => {
                   analysisKey={item.analysisKey}
                   value={item.value}
                   key={index}
+                  onPress={onButtonPress}
                   showDollarSign={item.showDollarSign} />
               )
           }
         </View>
       </ScrollView>
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        style={styles.bottomSheetModel}
+        enablePanDownToClose
+        enableDismissOnClose
+        snapPoints={snapPoints}
+      >
+        <StatsInfoContainer />
+      </BottomSheetModal>
     </SafeAreaView>
   );
 };
@@ -165,6 +184,9 @@ const TickerInfoScreen = () => {
 export default TickerInfoScreen;
 
 const styles = StyleSheet.create({
+  bottomSheetModel: {
+    marginTop: 30
+  },
   safeArea: {
     flex: 1,
     backgroundColor: '#fefefe',
@@ -235,7 +257,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontSize: 12,
     color: '#555',
-  },  
+  },
   statLabel: {
     fontSize: 12,
     color: '#777',

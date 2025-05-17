@@ -69,14 +69,6 @@ export default function Home() {
           <Text style={styles.title}>Your Watchlist</Text>
         </View>
 
-
-        {/* <Link key={item.symbol} push href={{
-            pathname: '/(hidden)/ticker/[ticker_info]',
-            params: {
-              ticker_info: item.symbol,
-              exchange: item.exchange
-            }
-          }}> */}
         {watchlists.map((item) => {
           const borderColor = getRandomColor();
           return (
@@ -118,6 +110,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     paddingHorizontal: 24,
     paddingBottom: 40,
+    flex: 1
   },
   header: {
     paddingTop: 42,

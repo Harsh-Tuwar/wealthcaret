@@ -1,13 +1,14 @@
 import React from 'react'
 import { Analysis } from '@/types/types';
-import { StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 interface CalculationCardProps {
 	label: string,
 	value: number | undefined,
 	analysisKey: string,
 	analysis: Analysis,
-	showDollarSign?: boolean
+	showDollarSign?: boolean,
+	onPress: VoidFunction
 }
 
 const verdictColors: Record<number, string> = {
@@ -36,7 +37,8 @@ const CalculationCard = ({
 	analysisKey,
 	label,
 	value,
-	showDollarSign = false
+	showDollarSign = false,
+	onPress
 }: CalculationCardProps) => {
 	const analysisMap: Record<string, { verdict: number, interpretation: string, metric: string, value: number }> = (analysis?.summary || [])
 		.reduce(
@@ -58,16 +60,18 @@ const CalculationCard = ({
 	
 	return (
 		<View style={styles.calculationCard} key={label}>
-			<View style={styles.cardHeader}>
-				<Text style={styles.calculationLabel}>{label}</Text>
-				<Text style={[styles.verdictLabel, { color: verdictColor }]}>
-					{emoji} {verdictLabel}
-				</Text>
-			</View>
-			<Text style={styles.calculationValue}>{showDollarSign && "$"}{value && value.toFixed(2)}</Text>
-			{interpretation && (
-				<Text style={styles.interpretation}>{interpretation}</Text>
-			)}
+			<Pressable onPress={onPress}>
+				<View style={styles.cardHeader}>
+					<Text style={styles.calculationLabel}>{label}</Text>
+					<Text style={[styles.verdictLabel, { color: verdictColor }]}>
+						{emoji} {verdictLabel}
+					</Text>
+				</View>
+				<Text style={styles.calculationValue}>{showDollarSign && "$"}{value && value.toFixed(2)}</Text>
+				{interpretation && (
+					<Text style={styles.interpretation}>{interpretation}</Text>
+				)}
+			</Pressable>
 		</View>
 	);
 }
